@@ -1,0 +1,121 @@
+# Gmail Reader
+
+A web application that retrieves and displays Gmail messages using the Gmail API with OAuth 2.0 authentication.
+
+## Project Structure
+
+```
+├── Backend/
+│   ├── .env                    # Environment variables (not tracked in git)
+│   ├── gmail_reader.js         # Main backend application
+│   └── gmail_reader_temp.js    # Development/testing file
+├── Frontend/
+│   ├── index.html              # Email display interface
+│   └── script.js               # Frontend logic
+├── .gitignore                  # Git ignore rules
+├── package.json                # Project dependencies
+└── README.md                   # Project documentation
+```
+
+## Features
+
+- OAuth 2.0 authentication with Google
+- Fetches up to 10 recent Gmail messages
+- Extracts email subjects and generates direct Gmail links
+- REST API endpoint for email data retrieval
+
+## Prerequisites
+
+- Node.js installed
+- Google Cloud Platform account
+- Gmail API enabled in Google Cloud Console
+- OAuth 2.0 credentials (Client ID & Client Secret)
+- ngrok (for local development with OAuth callbacks)
+
+## Setup
+
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+2. **Configure environment variables:**
+   Create a `.env` file in the `Backend/` directory:
+   ```
+   PORT=3000
+   GOOGLE_CLIENT_ID=your_client_id_here
+   GOOGLE_CLIENT_SECRET=your_client_secret_here
+   GMAIL_REDIRECT_URL=your_redirect_url_here
+   ```
+
+3. **Set up ngrok (for local development):**
+   ```bash
+   ngrok http 3000
+   ```
+   Copy the generated HTTPS URL and use it as your `GMAIL_REDIRECT_URL` in the `.env` file.
+
+4. **Configure Google Cloud Platform:**
+   - Enable Gmail API
+   - Add your ngrok URL to authorized redirect URIs
+   - Add test users in OAuth consent screen
+
+## Running the Application
+
+1. Start the backend server:
+   ```bash
+   node Backend/gmail_reader.js
+   ```
+
+2. Copy the authorization URL from the console output
+
+3. Open the URL in your browser and grant permissions
+
+4. After authentication, you'll be redirected to `/callback` which will return a JSON object with email subjects mapped to their Gmail links
+
+## API Endpoint
+
+### GET `/callback`
+Handles OAuth callback and fetches Gmail messages.
+
+**Response:**
+```json
+{
+  "Email Subject 1": "https://mail.google.com/mail/?email=user@gmail.com#inbox/message_id_1",
+  "Email Subject 2": "https://mail.google.com/mail/?email=user@gmail.com#inbox/message_id_2"
+}
+```
+
+## How It Works
+
+1. **OAuth2Client** acts as the authentication manager between the user and Google APIs
+2. **Gmail Client** performs Gmail operations once OAuth2Client has valid tokens
+3. User authenticates via Google's OAuth consent screen
+4. Backend exchanges authorization code for access tokens
+5. Backend fetches messages using Gmail API
+6. Email subjects and links are extracted and returned as JSON
+
+## Security Notes
+
+- Never commit `.env` files (already in `.gitignore`)
+- Keep OAuth credentials secure
+- Use HTTPS for production redirect URLs
+- The ngrok URL changes on each restart during development
+
+## Technologies Used
+
+- **Backend:** Node.js, Express.js
+- **Authentication:** Google OAuth 2.0
+- **API:** Gmail API (googleapis npm package)
+- **Environment Management:** dotenv
+
+## Future Enhancements
+
+- Connect frontend to display emails in styled cards
+- Add pagination for more than 10 emails
+- Implement email search/filter functionality
+- Add email body preview
+- Store and refresh tokens for persistent authentication
+
+## License
+
+This project is for educational purposes.
