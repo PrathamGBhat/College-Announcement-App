@@ -1,17 +1,14 @@
 # Gmail Reader
 
-A web application that retrieves and displays Gmail messages using the Gmail API with OAuth 2.0 authentication.
+A backend web application that reads the subjects of mails received by authenticated user and returns a json containing keys as the subject and links to the mails as values
 
 ## Project Structure
 
 ```
 ├── Backend/
 │   ├── .env                    # Environment variables (not tracked in git)
-│   ├── gmail_reader.js         # Main backend application
-│   └── gmail_reader_temp.js    # Development/testing file
-├── Frontend/
-│   ├── index.html              # Email display interface
-│   └── script.js               # Frontend logic
+│   └── gmail_reader.js         # Main backend application
+│   
 ├── .gitignore                  # Git ignore rules
 ├── package.json                # Project dependencies
 └── README.md                   # Project documentation
@@ -19,18 +16,13 @@ A web application that retrieves and displays Gmail messages using the Gmail API
 
 ## Features
 
-- OAuth 2.0 authentication with Google
-- Fetches up to 10 recent Gmail messages
-- Extracts email subjects and generates direct Gmail links
-- REST API endpoint for email data retrieval
+- Google OAuth 2.0 authentication
+- REST API endpoint for subject-link mapped json response
 
 ## Prerequisites
 
 - Node.js installed
-- Google Cloud Platform account
-- Gmail API enabled in Google Cloud Console
-- OAuth 2.0 credentials (Client ID & Client Secret)
-- ngrok (for local development with OAuth callbacks)
+- Setup ngrok - for exposing your localhost as url to entire internet which OAuth will use
 
 ## Setup
 
@@ -42,10 +34,11 @@ A web application that retrieves and displays Gmail messages using the Gmail API
 2. **Configure environment variables:**
    Create a `.env` file in the `Backend/` directory:
    ```
-   PORT=3000
-   GOOGLE_CLIENT_ID=your_client_id_here
-   GOOGLE_CLIENT_SECRET=your_client_secret_here
-   GMAIL_REDIRECT_URL=your_redirect_url_here
+   PORT = 3000
+
+   GOOGLE_CLIENT_ID = 165322321235-41ek2dk8pv3sq9k3i80h9edqms4gkkma.apps.googleusercontent.com
+   GOOGLE_CLIENT_SECRET = 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
+   GMAIL_REDIRECT_URL = https://nonflexible-graeme-bionomical.ngrok-free.dev/callback
    ```
 
 3. **Set up ngrok (for local development):**
@@ -53,11 +46,6 @@ A web application that retrieves and displays Gmail messages using the Gmail API
    ngrok http 3000
    ```
    Copy the generated HTTPS URL and use it as your `GMAIL_REDIRECT_URL` in the `.env` file.
-
-4. **Configure Google Cloud Platform:**
-   - Enable Gmail API
-   - Add your ngrok URL to authorized redirect URIs
-   - Add test users in OAuth consent screen
 
 ## Running the Application
 
