@@ -7,7 +7,9 @@ A backend web application that reads the subjects of mails received by authentic
 ```
 ├── Backend/
 │   ├── .env                    # Environment variables (not tracked in git)
-│   └── gmail_reader.js         # Main backend application
+│   ├── main.js                 # Main backend application
+│   ├── mail_retriever.js       # Retrieves mails based on filter
+│   └── filter_ops.js           # All filter related functions
 │   
 ├── .gitignore                  # Git ignore rules
 ├── package.json                # Project dependencies
@@ -74,6 +76,8 @@ Handles OAuth callback and fetches Gmail messages.
 ```
 
 ## How It Works
+
+# Not updated version 
 
 1. **OAuth2Client** acts as the authentication manager between the user and Google APIs
 2. **Gmail Client** performs Gmail operations once OAuth2Client has valid tokens
