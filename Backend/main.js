@@ -50,8 +50,6 @@ console.log(url); // Make sure the url is not breaking across lines - copy paste
 
 
 
-// FIX NEEDED: Add all necessary endpoints and return correct response
-
 // After login, the callback url will exchange code for tokens, set oauth2Client with them and then redirect the user to home page
 
 router.get('/callback', async (req, res) => {
@@ -67,11 +65,27 @@ router.get('/callback', async (req, res) => {
 
 
 
-// Main page of web app
+// Endpoint for frontend
+
+router.get('/filters', (req,res) => {
+  
+  res.json(Object.keys(filterObject));
+
+})
+
+
+
+// FIX NEEDED: Add query parameter in request properly
+
+// Main page of web app 
 
 router.get('/emails', async (req,res)=>{
 
   try {
+
+    const {filterName} = req.query; // /emails?filterName=CSE
+
+
 
     const gmail = google.gmail({version:'v1',auth:oauth2Client}); // Create such clients only after authentication is complete
 
