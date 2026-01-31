@@ -1,7 +1,13 @@
 import dotenv from 'dotenv';
-dotenv.config();
+import path from 'path';
+import {fileURLToPath} from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.join(__dirname, '.env') });
+
 import express from 'express';
-import { oauth2ClientInit } from './auth_init.js';
+import { google } from 'googleapis';
 import { createGmailFilter, deleteGmailFilter } from './filter_ops.js';
 import retrieveMails from './mail_retriever.js';
 
@@ -14,16 +20,36 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server listening on http://localhost:${PORT}`);
 });
+app.use(express.json())
 app.use(express.static('public')); 
 const router = express.Router();
 app.use(router);
 
 
 
-// Initialising google clients and login url
+// Initializing the oauth2Client
 
-const {oauth2Client, gmail, url} = await oauth2ClientInit(); // Returns the oauth2Client instance, gmail client instance and login url
+const oauth2Client = new google.auth.OAuth2( 
+process.env.GOOGLE_CLIENT_ID,
+process.env.GOOGLE_CLIENT_SECRET,
+process.env.GMAIL_REDIRECT_URL // The redirect url must be a globally visible url and also authorised in the google cloud platform- for testing with localhost, use ngrok
+);
+
+// Generates URL for login, logs it on console, extracts tokens from url when login and hence callback occurs
+
+const scopes = [
+    "https://www.googleapis.com/auth/gmail.readonly",
+    "https://www.googleapis.com/auth/gmail.settings.basic"
+];
+const url = oauth2Client.generateAuthUrl({
+    access_type: "offline", // Keeps user logged in even when offline
+    scope: scopes,
+    prompt: "consent" // Any url generated with this will ask users for consent for the scopes specified
+});
+
 console.log(url); // Make sure the url is not breaking across lines // Add the gmail you're testing with as a test user in gcp
+
+const gmail = google.gmail({version : 'v1', auth : oauth2Client});
 
 
 
@@ -118,10 +144,12 @@ router.get('/emails', async (req,res)=>{
 
 
 
+// FIX NEEDED: The root needs to point to the Gmail Reader regardless of where the program is run from
+
 // Endpoint to serve static frontend page
 
 router.get('/', (req,res) => {
 
-  res.sendFile('index.html', {root: 'public'}); // Search for folder called public in the root is what it means// To make sure root works properly, the node command should only be given from "Gmail Reader/"
+  res.sendFile('index.html', {root: 'public'}); 
 
 });

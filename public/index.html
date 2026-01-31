@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gmail Reader - Filter Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .controls label {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .filter-select {
+            flex: 1;
+            min-width: 250px;
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .filter-select:hover {
+            border-color: #667eea;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        .emails-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .email-card {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .email-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .email-from {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .email-subject {
+            color: #555;
+            margin-bottom: 10px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .email-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .email-snippet {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+            color: #777;
+            font-size: 13px;
+            line-height: 1.5;
+            max-height: 80px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #999;
+            text-align: center;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .empty-state h2 {
+            font-size: 20px;
+            margin-bottom: 8px;
+            color: #666;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-right: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border-left: 4px solid #c33;
+            font-size: 14px;
+        }
+
+        .success-message {
+            background: #efe;
+            color: #3c3;
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border-left: 4px solid #3c3;
+            font-size: 14px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+
+            .filter-select {
+                min-width: 100%;
+            }
+
+            .email-card {
+                padding: 15px;
+            }
+
+            header h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📧 Gmail Reader</h1>
+            <p>Manage and view your filtered emails</p>
+        </header>
+
+        <div class="controls">
+            <label for="filterSelect">Select Filter:</label>
+            <select id="filterSelect" class="filter-select">
+                <option value="">-- Choose a filter --</option>
+            </select>
+            <button id="createFilterBtn" class="btn btn-secondary">+ New Filter</button>
+            <button id="refreshBtn" class="btn btn-primary">Refresh</button>
+        </div>
+
+        <div class="content" id="content">
+            <div class="empty-state">
+                <div class="empty-state-icon">📬</div>
+                <h2>No Filter Selected</h2>
+                <p>Select a filter from the dropdown to view emails</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Filter Modal -->
+    <div id="createFilterModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Create New Filter</div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="filterName">Filter Name:</label>
+                    <input type="text" id="filterName" placeholder="e.g., Work Emails" required>
+                </div>
+                <div class="form-group">
+                    <label for="filterEmails">Email Addresses (one per line):</label>
+                    <textarea id="filterEmails" rows="5" placeholder="user1@example.com&#10;user2@example.com" required></textarea>
+                </div>
+                <div id="modalError" class="error-message" style="display: none;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeCreateFilterModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="submitCreateFilter()">Create Filter</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFilters();
+            
+            document.getElementById('filterSelect').addEventListener('change', function() {
+                if (this.value) {
+                    loadEmails(this.value);
+                } else {
+                    showEmptyState();
+                }
+            });
+
+            document.getElementById('refreshBtn').addEventListener('click', function() {
+                const selectedFilter = document.getElementById('filterSelect').value;
+                if (selectedFilter) {
+                    loadEmails(selectedFilter);
+                } else {
+                    loadFilters();
+                }
+            });
+
+            document.getElementById('createFilterBtn').addEventListener('click', openCreateFilterModal);
+
+            // Close modal when clicking outside
+            document.getElementById('createFilterModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeCreateFilterModal();
+                }
+            });
+        });
+
+        async function loadFilters() {
+            try {
+                const response = await fetch('/filters');
+                if (!response.ok) throw new Error('Failed to load filters');
+                
+                const filters = await response.json();
+                const select = document.getElementById('filterSelect');
+                const currentValue = select.value;
+                
+                // Preserve existing option
+                const options = ['<option value="">-- Choose a filter --</option>'];
+                filters.forEach(filter => {
+                    options.push(`<option value="${filter}">${filter}</option>`);
+                });
+                
+                select.innerHTML = options.join('');
+                
+                // Restore selection if it still exists
+                if (currentValue && filters.includes(currentValue)) {
+                    select.value = currentValue;
+                } else {
+                    showEmptyState();
+                }
+            } catch (error) {
+                console.error('Error loading filters:', error);
+                showError('Failed to load filters. Please try again.');
+            }
+        }
+
+        async function loadEmails(filterName) {
+            const content = document.getElementById('content');
+            content.innerHTML = '<div class="loading"><div class="spinner"></div>Loading emails...</div>';
+
+            try {
+                const response = await fetch(`/emails?filterName=${encodeURIComponent(filterName)}`);
+                
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error('Filter not found');
+                    }
+                    throw new Error('Failed to load emails');
+                }
+
+                const emailsData = await response.json();
+
+                // Convert object format {subject: link} to array format
+                const emails = Object.entries(emailsData).map(([subject, link]) => ({
+                    subject: subject,
+                    link: link
+                }));
+
+                if (!emails || emails.length === 0) {
+                    content.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📭</div>
+                            <h2>No Emails Found</h2>
+                            <p>This filter doesn't have any emails yet</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const emailsHTML = emails.map(email => `
+                    <div class="email-card" onclick="window.open('${escapeHtml(email.link)}', '_blank')" style="cursor: pointer;">
+                        <div class="email-subject">${escapeHtml(email.subject || '(No Subject)')}</div>
+                        <div class="email-meta">
+                            <span>Click to open in Gmail →</span>
+                        </div>
+                    </div>
+                `).join('');
+
+                content.innerHTML = `<div class="emails-list">${emailsHTML}</div>`;
+            } catch (error) {
+                console.error('Error loading emails:', error);
+                content.innerHTML = `<div class="error-message">${error.message}</div>`;
+            }
+        }
+
+        function showEmptyState() {
+            document.getElementById('content').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">📬</div>
+                    <h2>No Filter Selected</h2>
+                    <p>Select a filter from the dropdown to view emails</p>
+                </div>
+            `;
+        }
+
+        function openCreateFilterModal() {
+            document.getElementById('createFilterModal').classList.add('show');
+            document.getElementById('filterName').focus();
+            document.getElementById('modalError').style.display = 'none';
+        }
+
+        function closeCreateFilterModal() {
+            document.getElementById('createFilterModal').classList.remove('show');
+            document.getElementById('filterName').value = '';
+            document.getElementById('filterEmails').value = '';
+            document.getElementById('modalError').style.display = 'none';
+        }
+
+        async function submitCreateFilter() {
+            const filterName = document.getElementById('filterName').value.trim();
+            const filterEmailsText = document.getElementById('filterEmails').value.trim();
+            const modalError = document.getElementById('modalError');
+
+            if (!filterName) {
+                modalError.textContent = 'Filter name is required';
+                modalError.style.display = 'block';
+                return;
+            }
+
+            if (!filterEmailsText) {
+                modalError.textContent = 'At least one email address is required';
+                modalError.style.display = 'block';
+                return;
+            }
+
+            const filterList = filterEmailsText.split('\n').map(e => e.trim()).filter(e => e);
+
+            try {
+                const response = await fetch('/create-filter', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        filterName: filterName,
+                        filterList: filterList
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to create filter');
+                }
+
+                closeCreateFilterModal();
+                loadFilters();
+                showSuccess('Filter created successfully!');
+            } catch (error) {
+                console.error('Error creating filter:', error);
+                modalError.textContent = error.message;
+                modalError.style.display = 'block';
+            }
+        }
+
+        function showError(message) {
+            const content = document.getElementById('content');
+            content.innerHTML = `<div class="error-message">${message}</div>`;
+        }
+
+        function showSuccess(message) {
+            const div = document.createElement('div');
+            div.className = 'success-message';
+            div.textContent = message;
+            div.style.position = 'fixed';
+            div.style.top = '20px';
+            div.style.right = '20px';
+            div.style.zIndex = '2000';
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'Unknown Date';
+            const date = new Date(dateString);
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            if (date.toDateString() === today.toDateString()) {
+                return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            } else if (date.toDateString() === yesterday.toDateString()) {
+                return 'Yesterday';
+            } else if (date.getFullYear() === today.getFullYear()) {
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            } else {
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
