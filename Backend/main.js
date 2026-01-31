@@ -78,6 +78,8 @@ router.get('/filters', (req,res) => {
 
 
 
+// FIX NEEDED: fix the create and delete endpoints and functions to make sure actual filter is created in gmail
+
 // Endpoint to create filters
 
 router.post('/create-filter', async (req,res) => {
@@ -104,8 +106,6 @@ router.post('/create-filter', async (req,res) => {
 })
 
 
-
-// FIX NEEDED: fix the delete endpoint and delete filter function in filter ops later
 
 // Endpoint for frontend to delete filters
 
@@ -137,8 +137,6 @@ router.get('/emails', async (req,res)=>{
 });
 
 
-
-// FIX NEEDED: The root needs to point to the Gmail Reader regardless of where the program is run from
 
 // Endpoint to serve static frontend page
 
