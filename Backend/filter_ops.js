@@ -2,7 +2,7 @@
 
 // Creating the filter configuration in user's account
 
-export async function createGmailFilter(filterObject, gmail, filterName,...fromList){
+export async function createGmailFilter(gmail, fromList){
 
   try{
 
@@ -25,12 +25,12 @@ export async function createGmailFilter(filterObject, gmail, filterName,...fromL
       }
     });
 
-    filterObject[filterName]=createdFilter.data.id; // Replace with dropping to db
-
-    return "Filter Creation Successful";
+    return createdFilter.data.id;
 
   } catch (err) {
-    return err.message;
+
+    return err;
+
   }
 
 }
@@ -57,7 +57,9 @@ export async function deleteGmailFilter(filterObject, gmail, filterName){
     return "Filter Deletion Successful";
 
   } catch (err) {
-    return err.message;
+
+    return err;
+    
   }
 
 }
