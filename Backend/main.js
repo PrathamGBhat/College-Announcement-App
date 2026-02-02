@@ -121,6 +121,8 @@ router.delete('/filter/:filterName', async (req,res) => {
 
 
 
+// FIX NEEDED: fix the email retrieving after applying filters
+
 // Endpoint for frontend to retrieve mails from the backend 
 
 router.get('/emails', async (req,res)=>{
