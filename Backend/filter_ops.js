@@ -4,34 +4,44 @@
 
 export async function createGmailFilter(gmail, fromList){
 
-  try{
+  // Getting label ID for "RVCE"
 
-    // Making the query string in the format "from:abc@gmail.com OR from:def@gmail.com" to allow multiple email filtering
+  const labels = await gmail.users.labels.list({ userId: 'me' });
+  let rvceLabelId;
 
-    let query="";
-    for (let email of fromList){
-      query+="from:"+email+" OR "
+  for (let label of labels.data.labels){
+    if (label.name == "RVCE"){
+      rvceLabelId=label.id;
     }
-    query=query.slice(0,query.length-4);
-
-    // Creating the filter and getting the created filter
-
-    let createdFilter = await gmail.users.settings.filters.create({ // https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.settings.filters
-      userId:'me',
-      requestBody:{
-        criteria:{
-          query:query
-        }
-      }
-    });
-
-    return createdFilter.data.id;
-
-  } catch (err) {
-
-    return err;
-
   }
+  
+  if (!rvceLabelId) {
+    throw new Error('RVCE label not found');
+  }
+
+  // Making the query string in the format "from:abc@gmail.com OR from:def@gmail.com" to allow multiple email filtering
+
+  let query="";
+  for (let email of fromList){
+    query+=email+" OR "
+  }
+  query=query.slice(0,query.length-4);
+
+  // Creating the filter and getting the created filter
+
+  let createdFilter = await gmail.users.settings.filters.create({ // https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.settings.filters
+    userId:'me',
+    requestBody:{
+      criteria:{
+        from:`(${query})`
+      },
+      action: {
+        addLabelIds: [rvceLabelId]
+      }      
+    }
+  });
+
+  return createdFilter.data;
 
 }
 
@@ -52,7 +62,7 @@ export async function deleteGmailFilter(filterObject, gmail, filterName){
       id: filterId
     });
 
-    if (deletedFilter == {}) delete filterObject[filterName]; // Replace with removing from DB
+    if (deletedFilter == {}) delete filterObject[filterName];
     
     return "Filter Deletion Successful";
 
