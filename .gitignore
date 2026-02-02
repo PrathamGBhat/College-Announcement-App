@@ -1,7 +1,8 @@
 /node_modules
 
-/Backend/gmail_reader_temp.js
-/Backend/temp.js
-
 # Always add .env in gitignore
 *.env
+
+/Backend/temp.js
+
+
