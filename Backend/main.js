@@ -133,12 +133,14 @@ router.get('/emails', async (req,res)=>{
     const filterId = filterObject[filterName];
     if (!filterId) return res.status(404).json({error : 'filterId not found'})
 
-    res.json(await retrieveMails(gmail, filterId));
+    const res_obj = await retrieveMails(gmail, filterId);
+    
+    res.status(200).json({success : res_obj});
 
   } catch (err) {
 
     console.log("Error : " + err.message);
-    res.status(500).json({error : 'Internal server error'});
+    res.status(500).json({error : err.message});
 
   }
 

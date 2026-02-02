@@ -1,56 +1,48 @@
 export default async function retrieveMails(gmail, filterId){
 
-  try{
+  // Creating the query as required by q parameter
 
-    // Creating the query as required by q parameter
+  const filter = await gmail.users.settings.filters.get({userId:'me',id:filterId});
+  const criteria = filter.data.criteria;
+  const emails = criteria.from.split(/OR|,/i).map(email => email.trim()).filter(Boolean);
+  let query = emails.map(email => `from:${email}`).join(' OR ');
 
-    const filter = await gmail.users.settings.filters.get({userId:'me',id:filterId});
-    const criteria = filter.data.criteria;
-    const emails = criteria.from.split(/OR|,/i).map(email => email.trim()).filter(Boolean);
-    let query = emails.map(email => `from:${email}`).join(' OR ');
+  // Getting the list of message IDs
 
-    // Getting the list of message IDs
+  const response = await gmail.users.messages.list({userId: 'me',q:query, maxResults:10}); // Holds the response from google api request
+  const msgIdsList = response.data.messages; // any api response from google is wrapped in a .data // Only holds the id and thread id of messages, not the body 
 
-    const response = await gmail.users.messages.list({userId: 'me',q:query, maxResults:10}); // Holds the response from google api request
-    const msgIdsList = response.data.messages; // any api response from google is wrapped in a .data // Only holds the id and thread id of messages, not the body 
+  const subject_links={}; // Object that holds subjects mapped to their links
 
-    const subject_links={}; // Object that holds subjects mapped to their links
+  for (let msgIds of msgIdsList){
 
-    for (let msgIds of msgIdsList){
+    // Obtaining the message headers
 
-      // Obtaining the message headers
+    const msgObj = await gmail.users.messages.get({userId: 'me', id: msgIds.id})
+    const headers = msgObj.data.payload.headers;  // https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages#Message 
+                                                  // https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages#Message.MessagePart
 
-      const msgObj = await gmail.users.messages.get({userId: 'me', id: msgIds.id})
-      const headers = msgObj.data.payload.headers;  // https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages#Message 
-                                                    // https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages#Message.MessagePart
+    // Creating the object having subjects mapped to links
 
-      // Creating the object having subjects mapped to links
+    let link, subject, email;
 
-      let link, subject, email;
-
-      for (let header of headers){
-        
-        if (header.name=='Subject'){
-          subject = `${header.value}`;
-        }
-        if (header.name=='Delivered-To'){
-          email=`${header.value}`;
-        }
+    for (let header of headers){
+      
+      if (header.name=='Subject'){
+        subject = `${header.value}`;
       }
-
-      link=`https://mail.google.com/mail/?email=${email}#inbox/${msgIds.id}`;
-      subject_links[subject]=link;
-
+      if (header.name=='Delivered-To'){
+        email=`${header.value}`;
+      }
     }
 
-    // Returning the object
+    link=`https://mail.google.com/mail/?email=${email}#inbox/${msgIds.id}`;
+    subject_links[subject]=link;
 
-    return subject_links;
-
-  } catch (err) {
-
-    return err;
-    
   }
+
+  // Returning the object
+
+  return subject_links;
 
 }
