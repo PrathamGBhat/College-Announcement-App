@@ -33,7 +33,8 @@ process.env.GMAIL_REDIRECT_URL // The redirect url must be a globally visible ur
 
 const scopes = [
     "https://www.googleapis.com/auth/gmail.readonly",
-    "https://www.googleapis.com/auth/gmail.settings.basic"
+    "https://www.googleapis.com/auth/gmail.settings.basic",
+    "https://www.googleapis.com/auth/gmail.labels"
 ];
 const url = oauth2Client.generateAuthUrl({
     access_type: "offline", // Keeps user logged in even when offline
@@ -70,74 +71,104 @@ router.get('/callback', async (req, res) => {
 
 // Endpoint for frontend to know what filters have been made by user
 
-router.get('/filters', (req,res) => {
+router.get('/api/filters', (req,res) => {
   
-  res.status(200).json(Object.keys(filterObject));
+  res.status(200).json({response: Object.keys(filterObject)});
 
 })
 
 
 
-// Endpoint to create filters
+// Endpoint to create filters with request body
 
-router.post('/create-filter', async (req,res) => {
+router.post('/api/create-filter', async (req,res) => {
 
   try {
 
     const {filterName, filterList} = req.body;
 
     if (!filterName || !filterList) {
-      throw new Error('filterName and filterList missing in request body');
+      console.log("Both filterName and filterList required in request body")
+      res.status(400).json({error : 'Both filterName and filterList required in request body'});
     }
 
     if (Object.hasOwn(filterObject,filterName)) {
-      throw new Error(`${filterName} already exists`);
+      console.log(`Filter already exists`)
+      res.status(400).json({error : `Filter already exists`});
     }
 
-    const filterId = await createGmailFilter(gmail, filterList);
-    filterObject[filterName] = filterId.id;
+    const createdFilter = await createGmailFilter(gmail, filterName, filterList); // Creates a filter in authenticated user's account and returns it
+    filterObject[filterName] = createdFilter.id;
 
     console.log('Successfully created filter. Updated filterObject:');
     console.log(filterObject);
-    res.status(201).json({success : `Successfully created filter ${filterName}`});
+
+    res.status(201).json({response : `Successfully created filter ${filterName}`});
     
   } catch (err) {
     
     console.log("Error : "+err.message);
-    res.status(500).json({error : err.message});
+    res.status(500).json({error : "Internal server error"});
 
   }
 })
 
 
 
-// FIX NEEDED: fix the delete endpoint and function to make sure actual filter is deleted in gmail
+// Endpoint for frontend to delete filters with req parameters
 
-// Endpoint for frontend to delete filters
+router.delete('/api/delete-filter/:filterName', async (req,res) => {
 
-router.delete('/filter/:filterName', async (req,res) => {
+  try{
+
+    const filterName = req.params.filterName;
+
+    if (!filterName){
+      console.log("Missing filterName in request parameters")
+      res.status(400).json({error : 'Missing filterName in request parameters'})
+    };
+
+    const filterId = filterObject[filterName];
+    
+    if (!filterId){
+      console.log('filterId not found in database');
+      res.status(404).json({error : 'filterId not found in database'});
+    }
+
+    await deleteGmailFilter(gmail, filterName, filterId);
+    delete filterObject[filterName];
+
+    console.log('Successfully deleted filter. Updated filterObject:');
+    console.log(filterObject);
+
+    res.status(201).json({response : `Successfully deleted filter ${filterName}`})
+  
+  } catch (err) {
+
+    console.log("Error : "+err.message);
+    res.status(500).json({error : "Internal server error"})
+
+  }
 
 });
 
 
 
-// FIX NEEDED: fix the email retrieving after applying filters
+// Endpoint for frontend to retrieve mails from the backend with queries
 
-// Endpoint for frontend to retrieve mails from the backend 
-
-router.get('/emails', async (req,res)=>{
+router.get('/api/emails', async (req,res)=>{
 
   try {
 
     const {filterName} = req.query; // fetch in frontend using /emails?filterName=CSE
     if (!filterName) return res.status(400).json({error : 'Missing query filterName'})
     
-    const filterId = filterObject[filterName];
-    if (!filterId) return res.status(404).json({error : 'filterId not found'})
+    const createdFilter = filterObject[filterName];
+    if (!createdFilter) return res.status(404).json({error : 'createdFilter not found'})
 
-    const res_obj = await retrieveMails(gmail, filterId);
+    const res_obj = await retrieveMails(gmail, createdFilter);
     
-    res.status(200).json({success : res_obj});
+    res.status(200).json({response : res_obj});
 
   } catch (err) {
 

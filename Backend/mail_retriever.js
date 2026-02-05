@@ -4,12 +4,11 @@ export default async function retrieveMails(gmail, filterId){
 
   const filter = await gmail.users.settings.filters.get({userId:'me',id:filterId});
   const criteria = filter.data.criteria;
-  const emails = criteria.from.split(/OR|,/i).map(email => email.trim()).filter(Boolean);
-  let query = emails.map(email => `from:${email}`).join(' OR ');
+  const query_from = criteria.from;
 
   // Getting the list of message IDs
 
-  const response = await gmail.users.messages.list({userId: 'me',q:query, maxResults:10}); // Holds the response from google api request
+  const response = await gmail.users.messages.list({userId: 'me',q:'from:'+query_from, maxResults:10}); // Holds the response from google api request
   const msgIdsList = response.data.messages; // any api response from google is wrapped in a .data // Only holds the id and thread id of messages, not the body 
 
   const subject_links={}; // Object that holds subjects mapped to their links

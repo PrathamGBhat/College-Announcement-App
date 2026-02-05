@@ -2,22 +2,20 @@
 
 // Creating the filter configuration in user's account
 
-export async function createGmailFilter(gmail, fromList){
-
-  // Getting label ID for "RVCE"
-
-  const labels = await gmail.users.labels.list({ userId: 'me' });
-  let rvceLabelId;
-
-  for (let label of labels.data.labels){
-    if (label.name == "RVCE"){
-      rvceLabelId=label.id;
-    }
-  }
+export async function createGmailFilter(gmail, filterName, fromList){
   
-  if (!rvceLabelId) {
-    throw new Error('RVCE label not found');
-  }
+  // Creating the label and getting the label ID
+
+  let createdLabel = await gmail.users.labels.create(
+    {
+      userId : 'me',
+      requestBody : {
+        name : filterName,
+      }
+    }
+  );
+
+  let labelId = createdLabel.data.id;
 
   // Making the query string in the format "from:abc@gmail.com OR from:def@gmail.com" to allow multiple email filtering
 
@@ -36,40 +34,44 @@ export async function createGmailFilter(gmail, fromList){
         from:`(${query})`
       },
       action: {
-        addLabelIds: [rvceLabelId]
+        addLabelIds: [labelId]
       }      
     }
   });
 
-  return createdFilter.data;
+  return createdFilter.data; // Returns created filter
 
 }
 
 // Deleting the filter if it is present in the user's account
 
-export async function deleteGmailFilter(filterObject, gmail, filterName){
+export async function deleteGmailFilter(gmail, filterName, filterId){
 
-  try{
+  // Deleting the filter
 
-    // Obtaining the filter ID from the filterObject using filterName
+  await gmail.users.settings.filters.delete({ // https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.settings.filters
+    userId:'me',
+    id: filterId
+  });
 
-    let filterId = filterObject[filterName]
+  // Deleting the label using label ID obtained by searching with filterName AKA labelName
 
-    // Deleting the filter from the user's account
+  let labelId;
 
-    let deletedFilter = await gmail.users.settings.filters.delete({ // https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.settings.filters
-      userId:'me',
-      id: filterId
-    });
+  let labelsResponse = await gmail.users.labels.list({
+    userId : 'me'
+  })
+  let labels = labelsResponse.data.labels;
 
-    if (deletedFilter == {}) delete filterObject[filterName];
-    
-    return "Filter Deletion Successful";
-
-  } catch (err) {
-
-    return err;
-    
+  for (let label of labels){
+    if (label.name == filterName){
+      labelId = label.id
+    }
   }
 
+  await gmail.users.labels.delete({
+    userId : 'me',
+    id : labelId
+  });
+  
 }
