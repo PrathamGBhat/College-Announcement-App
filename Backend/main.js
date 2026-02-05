@@ -1,3 +1,5 @@
+// FIX NEEDED: Make update (put) endpoint in router then attach database to handle session management and google oauth2Client tokens
+
 import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
@@ -28,6 +30,8 @@ process.env.GOOGLE_CLIENT_ID,
 process.env.GOOGLE_CLIENT_SECRET,
 process.env.GMAIL_REDIRECT_URL // The redirect url must be a globally visible url and also authorised in the google cloud platform- for testing with localhost, use ngrok
 );
+
+
 
 // Generates URL for login, logs it on console, extracts tokens from url when login and hence callback occurs
 
@@ -185,6 +189,6 @@ router.get('/api/emails', async (req,res)=>{
 
 router.get('/', (req,res) => {
 
-  res.sendFile('index.html', {root: 'public'}); 
+  res.sendFile('index.html', {root: 'public'});
 
 });
