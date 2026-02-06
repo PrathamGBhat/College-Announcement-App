@@ -1,8 +1,6 @@
-// Currently simulating filterObject as parameter in function - remove once database comes
-
 // Creating the filter configuration in user's account
 
-export async function createGmailFilter(gmail, filterName, fromList){
+export async function createGmailLabel(gmail, labelName, fromList){
   
   // Creating the label and getting the label ID
 
@@ -10,7 +8,7 @@ export async function createGmailFilter(gmail, filterName, fromList){
     {
       userId : 'me',
       requestBody : {
-        name : filterName,
+        name : labelName,
       }
     }
   );
@@ -39,13 +37,35 @@ export async function createGmailFilter(gmail, filterName, fromList){
     }
   });
 
-  return createdFilter.data; // Returns created filter
+  // Getting the ids of messages to which already fall in this filter
+
+  const response = await gmail.users.messages.list({
+    userId : 'me',
+    q:'from:'+`(${query})`,
+    maxResults : 500
+  });
+  const msgIdsList = response.data.messages.map(msg => msg.id);
+
+  // Populating the label with all the emails that already satisfy filter
+  
+  await gmail.users.messages.batchModify({
+    userId : 'me',
+    requestBody : {
+      ids : msgIdsList,
+      addLabelIds : [labelId]
+    }
+  })
+
+  return {
+    labelId : labelId,
+    filterId : createdFilter.data.id
+  };
 
 }
 
 // Deleting the filter if it is present in the user's account
 
-export async function deleteGmailFilter(gmail, filterName, filterId){
+export async function deleteGmailLabel(gmail, labelId, filterId){
 
   // Deleting the filter
 
@@ -54,20 +74,7 @@ export async function deleteGmailFilter(gmail, filterName, filterId){
     id: filterId
   });
 
-  // Deleting the label using label ID obtained by searching with filterName AKA labelName
-
-  let labelId;
-
-  let labelsResponse = await gmail.users.labels.list({
-    userId : 'me'
-  })
-  let labels = labelsResponse.data.labels;
-
-  for (let label of labels){
-    if (label.name == filterName){
-      labelId = label.id
-    }
-  }
+  // Deleting the label using label ID
 
   await gmail.users.labels.delete({
     userId : 'me',

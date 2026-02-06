@@ -1,10 +1,8 @@
-// FIX NEEDED: Make update (put) endpoint in router then attach database to handle session management and google oauth2Client tokens
-
 import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
 import { google } from 'googleapis';
-import { createGmailFilter, deleteGmailFilter } from './filter_ops.js';
+import { createGmailLabel, deleteGmailLabel } from './label_ops.js';
 import retrieveMails from './mail_retriever.js';
 
 
@@ -38,7 +36,8 @@ process.env.GMAIL_REDIRECT_URL // The redirect url must be a globally visible ur
 const scopes = [
     "https://www.googleapis.com/auth/gmail.readonly",
     "https://www.googleapis.com/auth/gmail.settings.basic",
-    "https://www.googleapis.com/auth/gmail.labels"
+    "https://www.googleapis.com/auth/gmail.labels",
+    "https://www.googleapis.com/auth/gmail.modify"
 ];
 const url = oauth2Client.generateAuthUrl({
     access_type: "offline", // Keeps user logged in even when offline
@@ -73,11 +72,15 @@ router.get('/callback', async (req, res) => {
 
 
 
-// Endpoint for frontend to know what filters have been made by user
+// Endpoint for frontend to know what labels have been made by user
 
-router.get('/api/filters', (req,res) => {
+router.get('/api/labels', async (req,res) => {
   
-  res.status(200).json({response: Object.keys(filterObject)});
+  const response = await gmail.users.labels.list({
+    userId : 'me'
+  });
+  const labelNames = response.data.labels.map(label => label.name);
+  res.status(200).json({response: labelNames});
 
 })
 
@@ -85,29 +88,33 @@ router.get('/api/filters', (req,res) => {
 
 // Endpoint to create filters with request body
 
-router.post('/api/create-filter', async (req,res) => {
+router.post('/api/create-label', async (req,res) => {
 
   try {
 
-    const {filterName, filterList} = req.body;
+    const {labelName, fromList} = req.body;
 
-    if (!filterName || !filterList) {
-      console.log("Both filterName and filterList required in request body")
-      res.status(400).json({error : 'Both filterName and filterList required in request body'});
+    if (!labelName || !fromList) {
+      console.log("Both labelName and fromList required in request body")
+      res.status(400).json({error : 'Both labelName and fromList required in request body'});
     }
 
-    if (Object.hasOwn(filterObject,filterName)) {
-      console.log(`Filter already exists`)
-      res.status(400).json({error : `Filter already exists`});
+    // Check if label already exists
+
+    if (filterObject[labelName]) {
+      console.log(`Label already exists`)
+      res.status(400).json({error : `Label already exists`});
     }
 
-    const createdFilter = await createGmailFilter(gmail, filterName, filterList); // Creates a filter in authenticated user's account and returns it
-    filterObject[filterName] = createdFilter.id;
+    // If it doesn't exist go ahead with creating the filter and label
 
-    console.log('Successfully created filter. Updated filterObject:');
+    const createdLabel = await createGmailLabel(gmail, labelName, fromList); // Creates a label and filter in authenticated user's account and returns id of filter
+    filterObject[labelName] = createdLabel;
+
+    console.log('Successfully created label. Updated filterObject:');
     console.log(filterObject);
 
-    res.status(201).json({response : `Successfully created filter ${filterName}`});
+    res.status(201).json({response : `Successfully created label ${labelName}`});
     
   } catch (err) {
     
@@ -121,31 +128,32 @@ router.post('/api/create-filter', async (req,res) => {
 
 // Endpoint for frontend to delete filters with req parameters
 
-router.delete('/api/delete-filter/:filterName', async (req,res) => {
+router.delete('/api/delete-label/:labelName', async (req,res) => {
 
   try{
 
-    const filterName = req.params.filterName;
+    const labelName = req.params.labelName;
 
-    if (!filterName){
-      console.log("Missing filterName in request parameters")
-      res.status(400).json({error : 'Missing filterName in request parameters'})
+    if (!labelName){
+      console.log("Missing labelName in request parameters")
+      res.status(400).json({error : 'Missing labelName in request parameters'})
     };
 
-    const filterId = filterObject[filterName];
+    const labelId = filterObject[labelName].labelId;
+    const filterId = filterObject[labelName].filterId;
     
     if (!filterId){
-      console.log('filterId not found in database');
-      res.status(404).json({error : 'filterId not found in database'});
+      console.log('filterId not found');
+      res.status(404).json({error : 'filterId not found'});
     }
 
-    await deleteGmailFilter(gmail, filterName, filterId);
-    delete filterObject[filterName];
+    await deleteGmailLabel(gmail, labelId, filterId);
+    delete filterObject[labelId];
 
     console.log('Successfully deleted filter. Updated filterObject:');
     console.log(filterObject);
 
-    res.status(201).json({response : `Successfully deleted filter ${filterName}`})
+    res.status(201).json({response : `Successfully deleted label ${labelName}`})
   
   } catch (err) {
 
@@ -164,13 +172,12 @@ router.get('/api/emails', async (req,res)=>{
 
   try {
 
-    const {filterName} = req.query; // fetch in frontend using /emails?filterName=CSE
-    if (!filterName) return res.status(400).json({error : 'Missing query filterName'})
+    const {labelName} = req.query; // fetch in frontend using /emails?labelName=CSE
+    if (!labelName) return res.status(400).json({error : 'Missing query labelName'})
     
-    const createdFilter = filterObject[filterName];
-    if (!createdFilter) return res.status(404).json({error : 'createdFilter not found'})
+    let labelId = filterObject[labelName].labelId;
 
-    const res_obj = await retrieveMails(gmail, createdFilter);
+    const res_obj = await retrieveMails(gmail, labelId); // subject -> link
     
     res.status(200).json({response : res_obj});
 
