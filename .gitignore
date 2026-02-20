@@ -1,7 +1,7 @@
 /node_modules
 
 # Always add .env in gitignore
-*.env
+.env
 
 /Backend/temp.js
 

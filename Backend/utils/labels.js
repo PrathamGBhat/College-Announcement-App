@@ -56,6 +56,8 @@ export async function createGmailLabel(gmail, labelName, fromList){
     }
   })
 
+  // Returning the filterId and labelId
+  
   return {
     labelId : labelId,
     filterId : createdFilter.data.id

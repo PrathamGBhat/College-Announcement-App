@@ -1,8 +1,30 @@
 {
+  "name": "gmail-reader",
+  "version": "1.0.0",
+  "description": "A backend web application that reads the subjects of mails received by authenticated user and returns a json containing keys as the subject and links to the mails as values",
+  "homepage": "https://github.com/PrathamGBhat/Gmail-Reader-Private#readme",
+  "bugs": {
+    "url": "https://github.com/PrathamGBhat/Gmail-Reader-Private/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PrathamGBhat/Gmail-Reader-Private.git"
+  },
+  "license": "ISC",
+  "author": "",
   "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon ./Backend/server.js"
+  },
   "dependencies": {
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
-    "googleapis": "^170.1.0"
+    "googleapis": "^170.1.0",
+    "mongodb": "^7.1.0",
+    "mongoose": "^9.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
   }
 }

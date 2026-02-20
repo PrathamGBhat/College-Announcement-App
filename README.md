@@ -38,9 +38,9 @@ A backend web application that reads the subjects of mails received by authentic
    ```
    PORT = 3000
 
-   GOOGLE_CLIENT_ID = 165322321235-41ek2dk8pv3sq9k3i80h9edqms4gkkma.apps.googleusercontent.com
-   GOOGLE_CLIENT_SECRET = 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
-   GMAIL_REDIRECT_URL = https://nonflexible-graeme-bionomical.ngrok-free.dev/callback
+   GOOGLE_CLIENT_ID = your_client_id
+   GOOGLE_CLIENT_SECRET = your_client_secret
+   GMAIL_REDIRECT_URL = your_redirect_url
    ```
 
 3. **Set up ngrok (for local development):**
