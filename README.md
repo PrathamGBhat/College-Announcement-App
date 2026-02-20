@@ -1,5 +1,6 @@
 # Gmail Reader
 
+(Outdated README.md)
 A backend web application that reads the subjects of mails received by authenticated user and returns a json containing keys as the subject and links to the mails as values
 
 ## Project Structure
