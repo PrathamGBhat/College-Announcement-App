@@ -1,19 +1,9 @@
 import express from 'express';
-import { UserModel } from "../model/LabelModel.js";
+import { LabelModel } from "../model/LabelModel.js";
 import { gmail } from "../server.js";
 import retrieveMails from '../utils/emails.js';
 
-
-
 export const emailRouter = express.Router();
-
-
-
-// Simulate DB using JSON right now
-
-// {labelName : {labelId: 123, filterId: 45}}
-
-let filterObject = {};
 
 // Endpoint for frontend to retrieve mails from the backend with queries
 
@@ -33,9 +23,21 @@ emailRouter.get('/api/emails', async (req,res)=>{
       
     }
     
-    let labelId = filterObject[labelName].labelId;
+    let label = await LabelModel.findOne({labelName : labelName});
 
-    const res_obj = await retrieveMails(gmail, labelId); // subject -> link
+    if(!label){
+
+      console.log("Couldn't find specified labelName in database");
+      res.status(404).json({
+        message : "Not Found",
+        error : "Couldn't find specified labelName in database"
+      })
+
+    }
+
+    let labelId = label.labelId;
+
+    const res_obj = await retrieveMails(gmail, labelId); // {subject -> link}
     
     console.log("Successfully retrieved emails")
     res.status(200).json({

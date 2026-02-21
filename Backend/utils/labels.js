@@ -42,7 +42,7 @@ export async function createGmailLabel(gmail, labelName, fromList){
   const response = await gmail.users.messages.list({
     userId : 'me',
     q:'from:'+`(${query})`,
-    maxResults : 500
+    maxResults : 300
   });
   const msgIdsList = response.data.messages.map(msg => msg.id);
 

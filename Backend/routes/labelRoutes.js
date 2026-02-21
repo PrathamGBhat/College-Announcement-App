@@ -1,21 +1,9 @@
 import express from 'express';
-import { UserModel } from "../model/LabelModel.js";
+import { LabelModel } from "../model/LabelModel.js";
 import { gmail } from "../server.js";
 import { createGmailLabel, deleteGmailLabel } from "../utils/labels.js";
 
-
-
 export const labelRouter = express.Router();
-
-
-
-// Simulate DB using JSON right now
-
-// {labelName : {labelId: 123, filterId: 45}}
-
-let filterObject = {};
-
-
 
 // Endpoint to create filters with request body
 
@@ -39,7 +27,9 @@ labelRouter.post('/api/create-label', async (req,res) => {
 
     // Check if label already exists
 
-    if (filterObject[labelName]) {
+    let label = await LabelModel.findOne({labelName : labelName})
+
+    if (label != null) {
 
       console.log(`Label already exists`)
       res.status(400).json({
@@ -51,15 +41,18 @@ labelRouter.post('/api/create-label', async (req,res) => {
 
     // If it doesn't exist go ahead with creating the filter and label
 
-    const createdLabel = await createGmailLabel(gmail, labelName, fromList); // Creates a label and filter in authenticated user's account and returns id of filter and label
-    filterObject[labelName] = createdLabel;
+    const {labelId, filterId} = await createGmailLabel(gmail, labelName, fromList); // Creates a label and filter in authenticated user's account and returns id of filter and label
+    const createdLabel = new LabelModel({
+      labelName,
+      labelId,
+      filterId
+    });
+    await createdLabel.save();
 
-    console.log('Successfully created label. Updated filterObject:');
-    console.log(filterObject);
-
+    console.log('Successfully created label');
     res.status(201).json({
       message : "Created",
-      response : `Successfully created label ${labelName}`
+      data : `Successfully created label ${labelName}`
     });
     
   } catch (err) {
@@ -82,10 +75,10 @@ labelRouter.get('/api/labels', async (req,res) => {
 
   try {
 
-    const response = await gmail.users.labels.list({
-      userId : 'me'
-    });
-    const labelNames = response.data.labels.map(label => label.name);
+    const labels = await LabelModel.find({});
+    const labelNames = labels.map(label => label.labelName);
+
+    console.log("Retrieved all labels created by user")
     res.status(200).json({
       message : "OK",
       data: labelNames
@@ -102,10 +95,6 @@ labelRouter.get('/api/labels', async (req,res) => {
   }
 
 })
-
-
-
-
 
 
 
@@ -128,37 +117,31 @@ labelRouter.delete('/api/delete-label/:labelName', async (req,res) => {
       return;
     };
 
-    const labelId = filterObject[labelName].labelId;
+    const label = await LabelModel.findOne({labelName : labelName});
 
-    if (!labelId){
+    if (!label){
     
-      console.log('labelId not found');
+      console.log('Label not found');
       res.status(404).json({
         message : "Not Found",
-        error : 'labelId not found'
+        error : 'Label not found'
       });
     
     }
 
-    const filterId = filterObject[labelName].filterId;
-    
-    if (!filterId){
+    const labelId = label.labelId;
+    const filterId = label.filterId;
 
-      console.log('filterId not found');
-      res.status(404).json({
-        message : "Not Found",
-        error : 'filterId not found'
-      });
-
+    if (!labelId || !filterId){
+      throw new Error("Neither labelId nor filterId can be empty")
     }
 
     await deleteGmailLabel(gmail, labelId, filterId);
-    delete filterObject[labelName];
+    await LabelModel.deleteOne({labelName : labelName});
 
-    console.log('Successfully deleted filter. Updated filterObject:');
-    console.log(filterObject);
+    console.log('Successfully deleted label');
     res.status(201).json({
-      message : "Created",
+      message : "Deleted",
       data : `Successfully deleted label ${labelName}`
     })
   

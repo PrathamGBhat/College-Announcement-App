@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const UserSchema = new mongoose.Schema({
+const LabelSchema = new mongoose.Schema({
     labelName : {
         type : String,
         unique : true
@@ -9,4 +9,4 @@ const UserSchema = new mongoose.Schema({
     filterId : String
 });
 
-export const UserModel = new mongoose.model('User',UserSchema);
+export const LabelModel = new mongoose.model('Label',LabelSchema);

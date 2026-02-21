@@ -1,6 +1,7 @@
 // FIX NEEDED : Try using database instead of filterObject next then handle auth, session management with cookies and finally fix router
 
 import express from 'express';
+import mongoose from 'mongoose';
 import { google } from 'googleapis';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -21,6 +22,18 @@ export const router = express.Router()
 app.use(emailRouter);
 app.use(labelRouter);
 app.use(router)
+
+
+
+// Setting up database
+
+mongoose.connect(process.env.MONGODB_CONNECTION_URI)
+  .then(()=>{
+    console.log("Database connected successfully")
+  })
+  .catch(err => {
+    console.error("Error: "+err.message)
+  });
 
 
 
