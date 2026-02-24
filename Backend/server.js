@@ -1,4 +1,4 @@
-// FIX NEEDED : Try using database instead of filterObject next then handle auth, session management with cookies and finally fix router
+// FIX NEEDED : Try to handle auth, session management with cookies and finally fix router
 
 import express from 'express';
 import mongoose from 'mongoose';
@@ -40,9 +40,9 @@ mongoose.connect(process.env.MONGODB_CONNECTION_URI)
 // Initializing the oauth2Client
 
 const oauth2Client = new google.auth.OAuth2( 
-process.env.GOOGLE_CLIENT_ID,
-process.env.GOOGLE_CLIENT_SECRET,
-process.env.GMAIL_REDIRECT_URL // The redirect url must be a globally visible url and also authorised in the google cloud platform- for testing with localhost, use ngrok
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  process.env.GMAIL_REDIRECT_URL // The redirect url must be a globally visible url and also authorised in the google cloud platform- for testing with localhost, use ngrok
 );
 
 
