@@ -27,7 +27,7 @@ Unlike Gmail's basic filtering, this application lets you define multiple "from"
 ```
 Gmail Reader/
 ├── public/
-│   └── index.html              # Frontend UI for managing labels
+│   └── index.html              # Frontend UI for managing labels - VIBE CODED ;p
 │
 ├── src/
 │   ├── server.js               # Main Express application
