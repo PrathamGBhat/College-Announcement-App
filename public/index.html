@@ -713,7 +713,7 @@
             emptyState.style.display = 'none';
 
             try {
-                const response = await fetch(`/api/emails?labelName=${encodeURIComponent(labelName)}`);
+                const response = await fetch(`/api/emails/${encodeURIComponent(labelName)}`);
                 if (!response.ok) throw new Error('Failed to fetch emails');
                 
                 const data = await response.json();

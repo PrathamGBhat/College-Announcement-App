@@ -9,4 +9,4 @@ const LabelSchema = new mongoose.Schema({
     filterId : String
 });
 
-export const LabelModel = new mongoose.model('Label',LabelSchema);
+export const Label = mongoose.model('Label', LabelSchema);

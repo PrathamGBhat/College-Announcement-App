@@ -1,29 +1,24 @@
-import express from 'express';
-import { LabelModel } from "../model/LabelModel.js";
-import { gmail } from "../server.js";
-import retrieveMails from '../utils/emails.js';
+import { Label } from "../model/Label.js";
+import { gmail } from "../config/oauth.js";
+import retrieveMails from '../services/emails.js';
 
-export const emailRouter = express.Router();
-
-// Endpoint for frontend to retrieve mails from the backend with queries
-
-emailRouter.get('/api/emails', async (req,res)=>{
+export async function getEmailsByLabel(req,res){
 
   try {
 
-    const {labelName} = req.query; // fetch in frontend using /emails?labelName=CSE
+    const {labelName} = req.params;
 
     if (!labelName){ 
 
-      console.log("Missing query parameter labelName")
+      console.log("Missing parameter labelName")
       res.status(400).json({
         message : "Bad Request",
-        error : 'Missing query labelName'
+        error : 'Missing parameter labelName'
       });
       
     }
     
-    let label = await LabelModel.findOne({labelName : labelName});
+    let label = await Label.findOne({labelName : labelName});
 
     if(!label){
 
@@ -37,7 +32,7 @@ emailRouter.get('/api/emails', async (req,res)=>{
 
     let labelId = label.labelId;
 
-    const res_obj = await retrieveMails(gmail, labelId); // {subject -> link}
+    const res_obj = await retrieveMails(gmail, labelId);
     
     console.log("Successfully retrieved emails")
     res.status(200).json({
@@ -55,4 +50,4 @@ emailRouter.get('/api/emails', async (req,res)=>{
 
   }
 
-});
+}

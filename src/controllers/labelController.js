@@ -1,13 +1,8 @@
-import express from 'express';
-import { LabelModel } from "../model/LabelModel.js";
-import { gmail } from "../server.js";
-import { createGmailLabel, deleteGmailLabel } from "../utils/labels.js";
+import { Label } from "../model/Label.js";
+import { gmail } from "../config/oauth.js";
+import { createGmailLabel, deleteGmailLabel } from "../services/labels.js";
 
-export const labelRouter = express.Router();
-
-// Endpoint to create filters with request body
-
-labelRouter.post('/api/create-label', async (req,res) => {
+export async function createNewLabel(req,res) {
 
   try {
 
@@ -25,9 +20,7 @@ labelRouter.post('/api/create-label', async (req,res) => {
 
     }
 
-    // Check if label already exists
-
-    let label = await LabelModel.findOne({labelName : labelName})
+    let label = await Label.findOne({labelName : labelName})
 
     if (label != null) {
 
@@ -39,10 +32,8 @@ labelRouter.post('/api/create-label', async (req,res) => {
 
     }
 
-    // If it doesn't exist go ahead with creating the filter and label
-
-    const {labelId, filterId} = await createGmailLabel(gmail, labelName, fromList); // Creates a label and filter in authenticated user's account and returns id of filter and label
-    const createdLabel = new LabelModel({
+    const {labelId, filterId} = await createGmailLabel(gmail, labelName, fromList);
+    const createdLabel = new Label({
       labelName,
       labelId,
       filterId
@@ -63,19 +54,14 @@ labelRouter.post('/api/create-label', async (req,res) => {
       error : err.message
     });
 
-
   }
-})
+}
 
-
-
-// Endpoint for frontend to know what labels have been made by user
-
-labelRouter.get('/api/labels', async (req,res) => {
+export async function getLabels(req,res) {
 
   try {
 
-    const labels = await LabelModel.find({});
+    const labels = await Label.find({});
     const labelNames = labels.map(label => label.labelName);
 
     console.log("Retrieved all labels created by user")
@@ -94,13 +80,9 @@ labelRouter.get('/api/labels', async (req,res) => {
 
   }
 
-})
+}
 
-
-
-// Endpoint for frontend to delete filters with req parameters
-
-labelRouter.delete('/api/delete-label/:labelName', async (req,res) => {
+export async function deleteLabel(req,res) {
 
   try{
 
@@ -117,7 +99,7 @@ labelRouter.delete('/api/delete-label/:labelName', async (req,res) => {
       return;
     };
 
-    const label = await LabelModel.findOne({labelName : labelName});
+    const label = await Label.findOne({labelName : labelName});
 
     if (!label){
     
@@ -137,7 +119,7 @@ labelRouter.delete('/api/delete-label/:labelName', async (req,res) => {
     }
 
     await deleteGmailLabel(gmail, labelId, filterId);
-    await LabelModel.deleteOne({labelName : labelName});
+    await Label.deleteOne({labelName : labelName});
 
     console.log('Successfully deleted label');
     res.status(201).json({
@@ -155,4 +137,4 @@ labelRouter.delete('/api/delete-label/:labelName', async (req,res) => {
 
   }
 
-});
+}
