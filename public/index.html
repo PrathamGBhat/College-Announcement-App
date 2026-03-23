@@ -518,9 +518,20 @@
             <div>
                 <h2>Welcome to Gmail Reader</h2>
                 <p>Organize your emails with intelligent labels and filters</p>
-                <p style="font-size: 13px; color: var(--text-secondary);">Sign in with your Google account to get started</p>
             </div>
-            <button class="login-button" id="loginBtn">Sign in with Google</button>
+            <div style="width: 100%; max-width: 450px; text-align: left;">
+                <div style="background: var(--light-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 12px; font-size: 16px;">How to Login:</h3>
+                    <ol style="margin-left: 20px; color: var(--text-secondary); font-size: 14px;">
+                        <li style="margin-bottom: 8px;">Look in your <strong>server console</strong> for the line starting with "Auth URL: "</li>
+                        <li style="margin-bottom: 8px;">Copy that entire URL (starts with https://accounts.google.com)</li>
+                        <li style="margin-bottom: 8px;">Paste it in the input field below</li>
+                        <li>Click "Sign In" to continue</li>
+                    </ol>
+                </div>
+                <input type="text" id="authUrlInput" placeholder="Paste auth URL here..." style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 15px; font-size: 14px; box-sizing: border-box;">
+                <button class="login-button" id="loginBtn" style="width: 100%;">Sign In</button>
+            </div>
         </div>
 
         <!-- Dashboard Content -->
@@ -595,12 +606,30 @@
             checkLoginStatus();
             
             const loginBtn = document.getElementById('loginBtn');
+            const authUrlInput = document.getElementById('authUrlInput');
+            
             if (loginBtn) {
-                // Note: Replace with your actual login URL endpoint
                 loginBtn.addEventListener('click', function() {
-                    // This should redirect to the server's OAuth URL
-                    // The server logs the auth URL to console
-                    alert('Please check the server console for the login URL and open it in your browser.\n\nThe login URL has been logged to the server console (server.js output).');
+                    const authUrl = authUrlInput.value.trim();
+                    
+                    if (!authUrl) {
+                        alert('Please paste the auth URL from the server console');
+                        return;
+                    }
+                    
+                    if (!authUrl.startsWith('http')) {
+                        alert('Invalid auth URL. Please check the server console output.');
+                        return;
+                    }
+                    
+                    window.location.href = authUrl;
+                });
+                
+                // Allow Enter key to submit
+                authUrlInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        loginBtn.click();
+                    }
                 });
             }
         });
@@ -649,10 +678,33 @@
             loadEmails(labelName);
         }
 
+        // Delete a label
+        async function deleteLabel(labelName) {
+            if (!confirm(`Are you sure you want to delete the label "${labelName}"? This cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/labels/delete/${encodeURIComponent(labelName)}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error || 'Failed to delete label');
+                }
+
+                showMessage(`Label "${labelName}" deleted successfully!`, 'success');
+                loadLabels();
+            } catch (error) {
+                showMessage('Error deleting label: ' + error.message, 'error');
+            }
+        }
+
         // Fetch all labels from backend
         async function fetchLabels() {
             try {
-                const response = await fetch('/api/labels');
+                const response = await fetch('/api/labels/list');
                 if (!response.ok) {
                     if (response.status === 404) return null;
                     throw new Error('Failed to fetch labels');
@@ -689,6 +741,9 @@
                                 <button class="btn btn-view" onclick="showEmails('${escapeHtml(label)}')">
                                     View Emails
                                 </button>
+                                <button class="btn btn-delete" onclick="deleteLabel('${escapeHtml(label)}')">
+                                    Delete
+                                </button>
                             </div>
                         </div>
                     `).join('');
@@ -713,7 +768,7 @@
             emptyState.style.display = 'none';
 
             try {
-                const response = await fetch(`/api/emails/${encodeURIComponent(labelName)}`);
+                const response = await fetch(`/api/labels/${encodeURIComponent(labelName)}`);
                 if (!response.ok) throw new Error('Failed to fetch emails');
                 
                 const data = await response.json();
@@ -780,7 +835,7 @@
             submitBtn.innerHTML = '<span class="loading"></span>';
             
             try {
-                const response = await fetch('/api/create-label', {
+                const response = await fetch('/api/labels/create', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

@@ -104,7 +104,7 @@ npm install
    - Click "Create Credentials" → "OAuth client ID"
    - Choose "Web application"
    - Add authorized redirect URIs:
-     - For local development: `http://localhost:3000/callback`
+     - For local development: `https://nonflexible-graeme-bionomical.ngrok-free.dev/callback as google doesn't allow localhost`
      - For production: `https://yourdomain.com/callback`
    - Copy your **Client ID** and **Client Secret**
 
@@ -116,7 +116,7 @@ PORT=3000
 MONGODB_CONNECTION_URI=mongodb://localhost:27017/gmail-reader
 GOOGLE_CLIENT_ID=your_client_id_from_google_cloud
 GOOGLE_CLIENT_SECRET=your_client_secret_from_google_cloud
-GMAIL_REDIRECT_URL=http://localhost:3000/callback (https://nonflexible-graeme-bionomical.ngrok-free.dev/callback as google doesn't allow localhost)
+GMAIL_REDIRECT_URL=http://localhost:3000/callback 
 ```
 
 **Environment Details:**

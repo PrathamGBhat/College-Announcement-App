@@ -1,8 +1,9 @@
+// FIX NEEDED : Retrieve mails is all from database, try loading database every new load
+
 import express from 'express';
 import { validateEnv, env } from './config/env.js';
 import { connectDB } from './config/database.js';
 import { generateAuthUrl } from './config/oauth.js';
-import { emailRouter } from './routes/emailRoutes.js';
 import { labelRouter } from './routes/labelRoutes.js';
 import { authRouter } from './routes/authRoutes.js';
 
@@ -13,11 +14,11 @@ validateEnv();
 const app = express();
 app.use(express.json());
 app.use(express.static('public'));
-app.use(emailRouter);
 app.use(labelRouter);
 app.use(authRouter);
-app.listen(env.PORT, () => {
-  console.log(`Server listening on http://localhost:${env.PORT}`);
+const port = env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Server listening on http://localhost:${port}`);
 });
 
 // Connect to database
