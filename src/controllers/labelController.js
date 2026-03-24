@@ -1,5 +1,6 @@
 import { Label } from "../model/Label.js";
 import { gmail } from "../config/oauth.js";
+import {redisClient} from "../app.js";
 import { createGmailLabel, retrieveMails, deleteGmailLabel } from "../services/labels.js";
 
 export async function createNewLabel(req,res) {
@@ -11,12 +12,10 @@ export async function createNewLabel(req,res) {
     if (!labelName || !fromList) {
 
       console.log("Both labelName and fromList required in request body")
-      res.status(400).json({
+      return res.status(400).json({
         message : "Bad Request",
         error : 'Both labelName and fromList required in request body'
       });
-
-      return;
 
     }
 
@@ -25,7 +24,7 @@ export async function createNewLabel(req,res) {
     if (label != null) {
 
       console.log(`Label already exists`)
-      res.status(400).json({
+      return res.status(400).json({
         message : "Bad Request",
         error : `Label already exists`
       });
@@ -61,6 +60,9 @@ export async function getLabels(req,res) {
 
   try {
 
+    const routeKey = `${req.originalUrl}`;
+    const cached = await redisClient.get(routeKey);
+
     const labels = await Label.find({});
     const labelNames = labels.map(label=>label.labelName);
 
@@ -91,19 +93,21 @@ export async function getEmailsByLabel(req,res){
     if (!labelName){ 
 
       console.log("Missing parameter labelName")
-      res.status(400).json({
+      return res.status(400).json({
         message : "Bad Request",
         error : 'Missing parameter labelName'
       });
       
     }
     
+    const cached = red
+
     let label = await Label.findOne({labelName : labelName});
 
     if(!label){
 
       console.log("Couldn't find specified labelName in database");
-      res.status(404).json({
+      return res.status(404).json({
         message : "Not Found",
         error : "Couldn't find specified labelName in database"
       })
@@ -141,12 +145,11 @@ export async function deleteLabel(req,res) {
     if (!labelName){
       
       console.log("Missing labelName in request parameters")
-      res.status(400).json({
+      return res.status(400).json({
         message : "Bad Request",
         error : 'Missing labelName in request parameters'
       });
 
-      return;
     };
 
     const label = await Label.findOne({labelName : labelName});
@@ -154,7 +157,7 @@ export async function deleteLabel(req,res) {
     if (!label){
     
       console.log('Label not found');
-      res.status(404).json({
+      return res.status(404).json({
         message : "Not Found",
         error : 'Label not found'
       });
