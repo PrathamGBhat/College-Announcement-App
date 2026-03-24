@@ -1,10 +1,11 @@
 import express from 'express';
+import session from 'express-session';
+import { passport } from './config/auth.js';
 import { validateEnv, env } from './config/env.js';
 import { connectDB } from './config/database.js';
-import { createRedisClient } from './config/redis.js';
-import { generateAuthUrl } from './config/oauth.js';
-import { labelRouter } from './routes/labelRoutes.js';
 import { authRouter } from './routes/authRoutes.js';
+import { attachGmailClient } from './middleware/authMiddleware.js';
+import { labelRouter } from './routes/labelRoutes.js';
 
 // Validate environment variables
 validateEnv();
@@ -13,29 +14,35 @@ validateEnv();
 const app = express();
 app.use(express.json());
 app.use(express.static('public'));
-app.use(labelRouter);
+app.use(session({
+  secret: env.SESSION_SECRET,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly : true,
+    sameSite : 'lax',
+    maxAge: 24 * 60 * 60 * 1000,  // 24 hours
+  },
+  resave: false,
+  saveUninitialized: false,
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(authRouter);
+app.use(attachGmailClient);
+app.use(labelRouter);
 
-export let redisClient;
-
+// Function to initialize web app and start server
 const startServer = async () => {
   try {
     
     // Connect to database
     connectDB();
 
-    // Connect to redis
-    redisClient = await createRedisClient();
-
     // Start server
     const port = env.PORT || 3000;
     app.listen(port, () => {
       console.log(`Server listening on http://localhost:${port}`);
     });
-
-    // Log OAuth URL for testing
-    const authUrl = generateAuthUrl();
-    console.log("Auth URL: " + authUrl);
     
   } catch (err) {
 

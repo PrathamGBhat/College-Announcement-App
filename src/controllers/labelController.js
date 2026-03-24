@@ -1,6 +1,4 @@
 import { Label } from "../model/Label.js";
-import { gmail } from "../config/oauth.js";
-import {redisClient} from "../app.js";
 import { createGmailLabel, retrieveMails, deleteGmailLabel } from "../services/labels.js";
 
 export async function createNewLabel(req,res) {
@@ -31,7 +29,7 @@ export async function createNewLabel(req,res) {
 
     }
 
-    const {labelId, filterId} = await createGmailLabel(gmail, labelName, fromList);
+    const {labelId, filterId} = await createGmailLabel(req.gmail, labelName, fromList);
     const createdLabel = new Label({
       labelName,
       labelId,
@@ -59,9 +57,6 @@ export async function createNewLabel(req,res) {
 export async function getLabels(req,res) {
 
   try {
-
-    const routeKey = `${req.originalUrl}`;
-    const cached = await redisClient.get(routeKey);
 
     const labels = await Label.find({});
     const labelNames = labels.map(label=>label.labelName);
@@ -99,8 +94,6 @@ export async function getEmailsByLabel(req,res){
       });
       
     }
-    
-    const cached = red
 
     let label = await Label.findOne({labelName : labelName});
 
@@ -115,8 +108,7 @@ export async function getEmailsByLabel(req,res){
     }
 
     let labelId = label.labelId;
-
-    const res_obj = await retrieveMails(gmail, labelId);
+    const res_obj = await retrieveMails(req.gmail, labelId);
     
     console.log("Successfully retrieved emails")
     res.status(200).json({
@@ -171,7 +163,7 @@ export async function deleteLabel(req,res) {
       throw new Error("Neither labelId nor filterId can be empty")
     }
 
-    await deleteGmailLabel(gmail, labelId, filterId);
+    await deleteGmailLabel(req.gmail, labelId, filterId);
     await Label.deleteOne({labelName : labelName});
 
     console.log('Successfully deleted label');

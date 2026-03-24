@@ -6,8 +6,3 @@
 # Dependencies
 /node_modules
 package-lock.json
-
-# Dead code
-src/temp.js
-
-
