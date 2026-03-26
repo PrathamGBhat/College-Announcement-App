@@ -49,30 +49,6 @@ Gmail Reader/
 └── README.md                   # Documentation
 ```
 
-## How It Works
-
-Update with flowchart
-
-## Permissions Required
-
-The application requests the following Gmail scopes:
-- `https://www.googleapis.com/auth/gmail.settings.basic` - Read Gmail settings
-- `https://www.googleapis.com/auth/gmail.modify` - Modify Gmail labels and filters
-
-These permissions allow the app to:
-- Create and delete gmail labels and filters
-- Read message headers
-
-## Features
-
-### Core Features
-- **Google OAuth 2.0 Authentication** - Secure login with session management
-- **Session Management** - Express-session with secure HTTP-only cookies
-- **Custom Label and Filter Management** - Create and delete Gmail labels and filters with multi-email filters to segregate both existing and future emails
-- **Email Retrieval** - Fetch emails from custom labels as subject-link mappings (up to 300 emails)
-- **RESTful API** - Complete API with proper authentication middleware
-- **Persistent Storage** - User data and labels stored in MongoDB
-
 ## Prerequisites
 
 - **Node.js** (v14 or higher) - [Download](https://nodejs.org/)
@@ -158,6 +134,16 @@ Server listening on http://localhost:3000
 2. Click Sign In button to authenticate with Google
 3. Authorize the application to access Gmail
 4. You'll be redirected to the main dashboard
+
+## Features
+
+### Core Features
+- **Google OAuth 2.0 Authentication** - Secure login with session management
+- **Session Management** - Express-session with secure HTTP-only cookies
+- **Custom Label and Filter Management** - Create and delete Gmail labels and filters with multi-email filters to segregate both existing and future emails
+- **Email Retrieval** - Fetch emails from custom labels as subject-link mappings (up to 300 emails)
+- **RESTful API** - Complete API with proper authentication middleware
+- **Persistent Storage** - User data and labels stored in MongoDB
 
 ## API Endpoints
 
@@ -246,6 +232,10 @@ Server listening on http://localhost:3000
   }
   ```
 
+## How It Works
+
+Update with flowchart
+
 ## Development
 
 ### Start Development Server
@@ -332,13 +322,6 @@ Example error response:
 - Verify label and filter configuration exactly match that present in Gmail
 - Else delete and create label again
 
-## Related Resources
-
-- [Google OAuth 2.0 Documentation](https://developers.google.com/identity/protocols/oauth2)
-- [Express.js Documentation](https://expressjs.com/)
-- [Google Gmail API Documentation](https://developers.google.com/gmail/api/guides)
-- [MongoDB Documentation](https://docs.mongodb.com/)
-
 ## Limitations
 
 - Handles maximum one user
@@ -348,3 +331,10 @@ Example error response:
 ## License
 
 ISC
+
+## Related Resources
+
+- [Google OAuth 2.0 Documentation](https://developers.google.com/identity/protocols/oauth2)
+- [Express.js Documentation](https://expressjs.com/)
+- [Google Gmail API Documentation](https://developers.google.com/gmail/api/guides)
+- [MongoDB Documentation](https://docs.mongodb.com/)
