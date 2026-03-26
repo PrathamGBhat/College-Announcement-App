@@ -1,84 +1,83 @@
 # Gmail Reader
 
-A comprehensive Node.js web application that enables users to create custom Gmail labels and filters, then retrieve emails from those labels through a clean REST API and interactive web interface.
+NodeJS app to segregate emails and display them in custom UI with Gmail API
 
 ## Overview
 
-Gmail Reader streamlines email organization by allowing you to:
-- **Authenticate** securely using Google OAuth 2.0
-- **Create custom labels** in Gmail with automatic email filters based on sender addresses
-- **Retrieve emails** from custom labels with subject-to-link mappings
-- **Manage labels** (create, list, delete) through an intuitive UI or REST API
+- **Authentication** : Google OAuth 2.0
+- **Segregation and filtering** : Create gmail labels and filters through simpler app UI
+- **Retrieve emails** : Tiles in UI linked to the actual mail
 
-Unlike Gmail's basic filtering, this application lets you define multiple "from" addresses for a single label, automatically applying the filters to existing emails and maintaining them going forward.
+Integrates labels to handle segregate existing mails and filters to segregate newer incoming mails
+Also handles categorization of multiple email ID's into labels without use of delicate expressions like from:abc@gmail.com OR from:def@gmail.com
 
 ## Tech Stack
 
-- **Backend:** Node.js + Express.js
-- **Database:** MongoDB + Mongoose ODM
-- **Authentication:** Google OAuth 2.0
-- **APIs:** Google Gmail API v1
 - **Frontend:** HTML/CSS/JavaScript
-- **Development:** Nodemon for automatic reload
-- **Environment:** dotenv for configuration
+- **Authentication:** Google OAuth 2.0 with Passport.js
+- **Backend:** Node.js + Express.js
+- **APIs:** Google Gmail API v1
+- **Database:** MongoDB + Mongoose ODM
 
 ## Project Structure
 
 ```
 Gmail Reader/
 ├── public/
-│   └── index.html              # Frontend UI for managing labels - VIBE CODED ;p
+│   └── index.html              # Frontend UI - VIBE CODED ;p
 │
 ├── src/
-│   ├── server.js               # Main Express application
-│   ├── temp.js                 # Temporary utility file
+│   ├── app.js                  # Main Express app
 │   ├── config/
 │   │   ├── env.js              # Environment variables validation
 │   │   ├── database.js         # MongoDB connection setup
-│   │   └── oauth.js            # Google OAuth 2.0 configuration
+│   │   └── auth.js             # Passport.js configuration for OAuth 2.0
 │   ├── controllers/
-│   │   ├── authController.js   # OAuth callback handling
-│   │   ├── emailController.js  # Email retrieval logic
-│   │   └── labelController.js  # Label CRUD operations
+│   │   └── labelController.js  # Label create, list, retrieve, delete operations
+│   ├── middleware/
+│   │   └── authMiddleware.js   # Gmail client attachment middleware
 │   ├── routes/
-│   │   ├── authRoutes.js       # Authentication endpoints
-│   │   ├── emailRoutes.js      # Email retrieval endpoints
-│   │   └── labelRoutes.js      # Label management endpoints
+│   │   ├── authRoutes.js       # Authentication endpoints (login, callback, profile, logout)
+│   │   └── labelRoutes.js      # Label management & email retrieval endpoints
 │   ├── services/
-│   │   ├── emails.js           # Email fetching from Gmail API
-│   │   └── labels.js           # Gmail label and filter creation/deletion
+│   │   └── labels.js           # Helper functions to provide separate file for Gmail API interaction
 │   └── model/
-│       └── Label.js            # Label database schema
+│       ├── Label.js            # Label database schema
+│       └── User.js             # User database schema
 │
 ├── package.json                # Project dependencies
 └── README.md                   # Documentation
 ```
 
+## How It Works
+
+Update with flowchart
+
+## Permissions Required
+
+The application requests the following Gmail scopes:
+- `https://www.googleapis.com/auth/gmail.settings.basic` - Read Gmail settings
+- `https://www.googleapis.com/auth/gmail.modify` - Modify Gmail labels and filters
+
+These permissions allow the app to:
+- Create and delete gmail labels and filters
+- Read message headers
+
 ## Features
 
-### ✨ Core Features
-- **Google OAuth 2.0 Authentication** - Secure login without storing passwords
-- **Custom Label Creation** - Create Gmail labels with multi-email filters in one action
-- **Automatic Email Filtering** - Filters automatically apply to existing and future emails
+### Core Features
+- **Google OAuth 2.0 Authentication** - Secure login with session management
+- **Session Management** - Express-session with secure HTTP-only cookies
+- **Custom Label and Filter Management** - Create and delete Gmail labels and filters with multi-email filters to segregate both existing and future emails
 - **Email Retrieval** - Fetch emails from custom labels as subject-link mappings (up to 300 emails)
-- **Label Management** - View, create, and delete labels with corresponding Gmail cleanup
-- **Persistent Storage** - Labels stored in MongoDB for user session management
-- **RESTful API** - Complete API for programmatic access
-
-### 🔧 Technical Advantages
-- Modular architecture with separation of concerns
-- Comprehensive error handling and validation
-- Environment-based configuration
-- Direct Gmail API integration (no third-party mail services)
-- Batch operations for efficient Gmail updates
-- Automatic redirection links to original Gmail messages
+- **RESTful API** - Complete API with proper authentication middleware
+- **Persistent Storage** - User data and labels stored in MongoDB
 
 ## Prerequisites
 
 - **Node.js** (v14 or higher) - [Download](https://nodejs.org/)
 - **MongoDB** - Local instance or [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) cloud database
 - **Google Cloud Project** - For OAuth credentials
-- **ngrok** (optional, for local development) - [Download](https://ngrok.com/)
 
 ## Setup Guide
 
@@ -104,8 +103,8 @@ npm install
    - Click "Create Credentials" → "OAuth client ID"
    - Choose "Web application"
    - Add authorized redirect URIs:
-     - For local development: `https://nonflexible-graeme-bionomical.ngrok-free.dev/callback as google doesn't allow localhost`
-     - For production: `https://yourdomain.com/callback`
+     - For local development: `http://localhost:3000/auth/google/callback`
+     - For production: `https://yourdomain.com/auth/google/callback`
    - Copy your **Client ID** and **Client Secret**
 
 ### 4. Configure Environment Variables
@@ -116,7 +115,9 @@ PORT=3000
 MONGODB_CONNECTION_URI=mongodb://localhost:27017/gmail-reader
 GOOGLE_CLIENT_ID=your_client_id_from_google_cloud
 GOOGLE_CLIENT_SECRET=your_client_secret_from_google_cloud
-GMAIL_REDIRECT_URL=http://localhost:3000/callback 
+GOOGLE_CALLBACK_URL=http://localhost:3000/auth/google/callback
+SESSION_SECRET=your_session_secret_key
+NODE_ENV=development
 ```
 
 **Environment Details:**
@@ -124,7 +125,9 @@ GMAIL_REDIRECT_URL=http://localhost:3000/callback
 - `MONGODB_CONNECTION_URI` - MongoDB connection string (local or Atlas)
 - `GOOGLE_CLIENT_ID` - OAuth 2.0 Client ID
 - `GOOGLE_CLIENT_SECRET` - OAuth 2.0 Client Secret
-- `GMAIL_REDIRECT_URL` - Callback URL after Google login
+- `GOOGLE_CALLBACK_URL` - Callback URL after Google OAuth login
+- `SESSION_SECRET` - Secret key for session management
+- `NODE_ENV` - Environment mode (development/production)
 
 ### 5. Set Up Local Database
 
@@ -147,35 +150,53 @@ npm start
 The server will start on `http://localhost:3000` and output:
 ```
 Server listening on http://localhost:3000
-Auth URL: https://accounts.google.com/o/oauth2/v2/auth?...
 ```
 
 ### 7. Access the Application
 
 1. Open browser to `http://localhost:3000`
-2. Click login button to authenticate with Google
+2. Click Sign In button to authenticate with Google
 3. Authorize the application to access Gmail
 4. You'll be redirected to the main dashboard
-
-### 8. (Optional) For Remote Access - Set Up ngrok
-
-For testing OAuth redirect URLs outside localhost:
-```bash
-ngrok http 3000
-```
-
-Then update `GMAIL_REDIRECT_URL` in `.env` to the ngrok URL.
 
 ## API Endpoints
 
 ### Authentication
-- **`GET /callback`** - OAuth 2.0 callback endpoint
+- **`GET /auth/google/login`** - Initiate Google OAuth login
+  - Redirects user to Google consent screen
+  - Requests scopes: `profile`, `email`, `gmail.modify`, `gmail.settings.basic`
+
+- **`GET /auth/google/callback`** - OAuth 2.0 callback endpoint
   - Query: `code` (from Google)
-  - Exchanges authorization code for tokens
+  - Exchanges authorization code for access/refresh tokens
+  - Redirects to `/` on success, back to login on failure
+
+- **`GET /auth/profile`** - Get authenticated user's profile
+  - Requires: Active authentication session
+  - Returns:
+  ```json
+  {
+    "message": "OK",
+    "data": {
+      "name": "User Name",
+      "email": "user@gmail.com"
+    }
+  }
+  ```
+
+- **`GET /auth/google/logout`** - Logout and destroy session
+  - Clears session cookie and destroys session
+  - Returns:
+  ```json
+  {
+    "message": "Logout successful"
+  }
+  ```
 
 ### Labels
-- **`GET /api/labels`** - Get all user's custom labels
-  - Response: Array of label names
+- **`GET /api/labels/list`** - Get all user's custom labels
+  - Requires: Active authentication
+  - Response: Array of label objects stored in database
   ```json
   {
     "message": "OK",
@@ -183,8 +204,29 @@ Then update `GMAIL_REDIRECT_URL` in `.env` to the ngrok URL.
   }
   ```
 
-- **`POST /api/create-label`** - Create new label with filters
-  - Body: `{ "labelName": "string", "fromList": ["email@example.com"] }`
+- **`GET /api/labels/:labelName`** - Get emails from a label
+  - Requires: Active authentication
+  - Parameters: `labelName`
+  - Response: Object mapping email subjects to Gmail web links
+  ```json
+  {
+    "message": "OK",
+    "data": {
+      "Project Update": "https://mail.google.com/mail/u/0/?email=user@gmail.com#inbox/MESSAGE_ID",
+      "Meeting Notes": "https://mail.google.com/mail/u/0/?email=user@gmail.com#inbox/MESSAGE_ID"
+    }
+  }
+  ```
+
+- **`POST /api/labels/create`** - Create new label with email filters
+  - Requires: Active authentication
+  - Body: 
+  ```json
+  {
+    "labelName": "Work",
+    "fromList": ["email1@example.com", "email2@example.com"]
+  }
+  ```
   - Response: Success/error message
   ```json
   {
@@ -193,29 +235,40 @@ Then update `GMAIL_REDIRECT_URL` in `.env` to the ngrok URL.
   }
   ```
 
-- **`DELETE /api/delete-label/:labelName`** - Delete label and filters
+- **`DELETE /api/labels/delete/:labelName`** - Delete label and its filters
+  - Requires: Active authentication
   - Parameters: `labelName`
   - Response: Success/error message
-
-### Emails
-- **`GET /api/emails/:labelName`** - Get emails from a label
-  - Parameters: `labelName`
-  - Response: Object mapping subjects to Gmail web links
   ```json
   {
-    "message": "OK",
-    "data": {
-      "Project Update": "https://mail.google.com/mail/?email=user@gmail.com#inbox/MESSAGE_ID",
-      "Meeting Notes": "https://mail.google.com/mail/?email=user@gmail.com#inbox/MESSAGE_ID"
-    }
+    "message": "Deleted",
+    "data": "Label successfully deleted"
   }
   ```
 
-## Usage Example
+## Development
+
+### Start Development Server
+```bash
+npm start
+```
+
+### Login with Google
+```bash
+# Open browser and navigate to:
+http://localhost:3000/auth/google/login
+# This redirects to Google OAuth consent screen
+```
+
+
+### Get User Profile
+```bash
+curl http://localhost:3000/auth/profile
+```
 
 ### Create a Label
 ```bash
-curl -X POST http://localhost:3000/api/create-label \
+curl -X POST http://localhost:3000/api/labels/create \
   -H "Content-Type: application/json" \
   -d '{
     "labelName": "Vendors",
@@ -225,67 +278,23 @@ curl -X POST http://localhost:3000/api/create-label \
 
 ### Get All Labels
 ```bash
-curl http://localhost:3000/api/labels
+curl http://localhost:3000/api/labels/list
 ```
 
 ### Get Emails from Label
 ```bash
-curl http://localhost:3000/api/emails/Vendors
+curl http://localhost:3000/api/labels/Vendors
 ```
 
 ### Delete a Label
 ```bash
-curl -X DELETE http://localhost:3000/api/delete-label/Vendors
+curl -X DELETE http://localhost:3000/api/labels/delete/Vendors
 ```
 
-## How It Works
-
-1. **Authentication Flow**
-   - User clicks login button
-   - Redirects to Google OAuth consent screen
-   - User grants Gmail access permissions
-   - Google redirects to `/callback` with authorization code
-   - Server exchanges code for access tokens
-   - Tokens stored in OAuth2Client for Gmail API calls
-
-2. **Label Creation Flow**
-   - User submits label name and list of sender emails
-   - System creates Gmail label
-   - System creates Gmail filter: `from:(email1@example.com OR email2@example.com) → addLabelIds:[labelId]`
-   - System applies label to matching existing emails
-   - Label metadata stored in MongoDB
-
-3. **Email Retrieval Flow**
-   - User requests emails from a label
-   - System queries Gmail for messages with that label ID (max 300)
-   - For each message, fetches headers to extract subject and "Delivered-To"
-   - Constructs direct Gmail links: `https://mail.google.com/mail/?email={email}#inbox/{messageId}`
-   - Returns subject-to-link object as JSON
-
-4. **Label Deletion Flow**
-   - User deletes a label
-   - System deletes Gmail filter
-   - System deletes Gmail label
-   - System removes record from MongoDB
-
-## Permissions Required
-
-The application requests the following Gmail scopes:
-- `https://www.googleapis.com/auth/gmail.settings.basic` - Read Gmail settings
-- `https://www.googleapis.com/auth/gmail.modify` - Modify Gmail labels and filters
-
-These permissions allow the app to:
-- Create and delete labels
-- Create and delete filters
-- Modify message labels
-- Read message headers
-
-## Limitations
-
-- Retrieves maximum 300 emails per label (Gmail API limitation)
-- Requires active Google authentication session
-- Labels are user-specific (one user per deployment)
-- Filters based on "from" addresses only
+### Logout
+```bash
+curl http://localhost:3000/auth/google/logout
+```
 
 ## Error Handling
 
@@ -304,17 +313,6 @@ Example error response:
 }
 ```
 
-## Development
-
-### Start Development Server
-```bash
-npm start
-```
-Uses Nodemon to automatically reload on file changes.
-
-### Project Scripts
-- `npm start` - Start development server with Nodemon
-
 ## Troubleshooting
 
 ### "Missing environment variable" warning
@@ -323,7 +321,7 @@ Uses Nodemon to automatically reload on file changes.
 
 ### OAuth redirect fails
 - Verify redirect URL matches Google Cloud Console OAuth settings
-- Ensure ngrok URL (if used) is in authorized redirect URIs
+- Ensure `GOOGLE_CALLBACK_URL` in `.env` matches your Google OAuth settings
 
 ### MongoDB connection error
 - Verify MongoDB is running (`mongod` for local)
@@ -331,85 +329,22 @@ Uses Nodemon to automatically reload on file changes.
 - Ensure network access (if using Atlas)
 
 ### Emails not retrieved
-- Verify label exists in Gmail account
-- Check label name matches exactly (case-sensitive)
-- Ensure emails match the filter criteria
+- Verify label and filter configuration exactly match that present in Gmail
+- Else delete and create label again
 
 ## Related Resources
 
-- [Google Gmail API Documentation](https://developers.google.com/gmail/api/guides)
 - [Google OAuth 2.0 Documentation](https://developers.google.com/identity/protocols/oauth2)
-- [MongoDB Documentation](https://docs.mongodb.com/)
 - [Express.js Documentation](https://expressjs.com/)
+- [Google Gmail API Documentation](https://developers.google.com/gmail/api/guides)
+- [MongoDB Documentation](https://docs.mongodb.com/)
+
+## Limitations
+
+- Handles maximum one user
+- No active sync of gmail and app hence exact same config of labels and filters is a must
+- Retrieves maximum 300 emails per label (Gmail API limitation)
 
 ## License
 
 ISC
-
-## Repository
-
-[GitHub - Gmail Reader Private](https://github.com/PrathamGBhat/Gmail-Reader-Private)
-   Copy the generated HTTPS URL and use it as your `GMAIL_REDIRECT_URL` in the `.env` file.
-
-## Running the Application
-
-1. Start the backend server:
-   ```bash
-   node Backend/gmail_reader.js
-   ```
-
-2. Copy the authorization URL from the console output
-
-3. Open the URL in your browser and grant permissions
-
-4. After authentication, you'll be redirected to `/callback` which will return a JSON object with email subjects mapped to their Gmail links
-
-## API Endpoint
-
-### GET `/callback`
-Handles OAuth callback and fetches Gmail messages.
-
-**Response:**
-```json
-{
-  "Email Subject 1": "https://mail.google.com/mail/?email=user@gmail.com#inbox/message_id_1",
-  "Email Subject 2": "https://mail.google.com/mail/?email=user@gmail.com#inbox/message_id_2"
-}
-```
-
-## How It Works
-
-# Not updated version 
-
-1. **OAuth2Client** acts as the authentication manager between the user and Google APIs
-2. **Gmail Client** performs Gmail operations once OAuth2Client has valid tokens
-3. User authenticates via Google's OAuth consent screen
-4. Backend exchanges authorization code for access tokens
-5. Backend fetches messages using Gmail API
-6. Email subjects and links are extracted and returned as JSON
-
-## Security Notes
-
-- Never commit `.env` files (already in `.gitignore`)
-- Keep OAuth credentials secure
-- Use HTTPS for production redirect URLs
-- The ngrok URL changes on each restart during development
-
-## Technologies Used
-
-- **Backend:** Node.js, Express.js
-- **Authentication:** Google OAuth 2.0
-- **API:** Gmail API (googleapis npm package)
-- **Environment Management:** dotenv
-
-## Future Enhancements
-
-- Connect frontend to display emails in styled cards
-- Add pagination for more than 10 emails
-- Implement email search/filter functionality
-- Add email body preview
-- Store and refresh tokens for persistent authentication
-
-## License
-
-This project is for educational purposes.
