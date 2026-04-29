@@ -143,7 +143,7 @@ Server listening on http://localhost:3000
 - **Custom Label and Filter Management** - Create and delete Gmail labels and filters with multi-email filters to segregate both existing and future emails
 - **Email Retrieval** - Fetch emails from custom labels as subject-link mappings (up to 300 emails)
 - **RESTful API** - Complete API with proper authentication middleware
-- **Persistent Storage** - User data and labels stored in MongoDB
+- **Persistent Storage** - User data stored in MongoDB
 
 ## API Endpoints
 
@@ -318,14 +318,8 @@ Example error response:
 - Check connection string in `.env`
 - Ensure network access (if using Atlas)
 
-### Emails not retrieved
-- Verify label and filter configuration exactly match that present in Gmail
-- Else delete and create label again
-
 ## Limitations
 
-- Handles maximum one user
-- No active sync of gmail and app hence exact same config of labels and filters is a must
 - Retrieves maximum 300 emails per label (Gmail API limitation)
 
 ## License
