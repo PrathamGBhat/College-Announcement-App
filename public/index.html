@@ -12,20 +12,20 @@
         }
 
         :root {
-            --primary-color: #1f2937;
-            --secondary-color: #4F46E5;
-            --accent-color: #06B6D4;
-            --danger-color: #EF4444;
-            --success-color: #10B981;
-            --light-bg: #F9FAFB;
-            --border-color: #E5E7EB;
-            --text-primary: #111827;
-            --text-secondary: #6B7280;
+            --primary-color: #000000;
+            --secondary-color: #000000;
+            --accent-color: #0F766E;
+            --danger-color: #DC2626;
+            --success-color: #059669;
+            --light-bg: #2b2d2b;
+            --border-color: #1e211e;
+            --text-primary: #F5F5F5;
+            --text-secondary: #A0A0A0;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #181e19;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -37,28 +37,31 @@
         .container {
             width: 100%;
             max-width: 1200px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            background: #2b2d2b;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
             overflow: hidden;
+            border: 1px solid #1e211e;
         }
 
         .header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            background: linear-gradient(135deg, #0F766E 0%, #14B8A6 100%);
             color: white;
             padding: 40px 20px;
             text-align: center;
+            border-bottom: 1px solid #1e211e;
         }
 
         .header h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
-            font-weight: 700;
+            font-size: 28px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
         }
 
         .header p {
             font-size: 14px;
-            opacity: 0.9;
+            opacity: 0.95;
         }
 
         .nav-bar {
@@ -66,76 +69,143 @@
             justify-content: space-between;
             align-items: center;
             padding: 16px 24px;
-            background: var(--light-bg);
-            border-bottom: 1px solid var(--border-color);
-            backdrop-filter: blur(4px);
+            background: #2b2d2b;
+            border-bottom: 1px solid #1e211e;
         }
 
         .nav-bar-left {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             align-items: center;
         }
 
         .nav-button {
             padding: 8px 16px;
-            border: none;
-            background: var(--secondary-color);
-            color: white;
+            border: 1px solid #0F766E;
+            background: transparent;
+            color: #14B8A6;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         .nav-button:hover {
-            background: #4338CA;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+            background: #0F766E;
+            color: #FFFFFF;
+            transform: translateY(-1px);
         }
 
         .nav-button.secondary {
-            background: var(--accent-color);
+            border-color: #14B8A6;
+            color: #14B8A6;
         }
 
         .nav-button.secondary:hover {
-            background: #0891B2;
+            background: #14B8A6;
+            color: #FFFFFF;
+        }
+
+        #logoutBtn {
+            border-color: #FF6B6B !important;
+            color: #FF6B6B !important;
+        }
+
+        #logoutBtn:hover {
+            background: #5A1A1A !important;
+            border-color: #7A2A2A !important;
+            color: #FF6B6B !important;
         }
 
         .login-button {
             padding: 12px 28px;
-            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--accent-color) 100%);
+            background: linear-gradient(135deg, #0F766E 0%, #14B8A6 100%);
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
+            border-radius: 6px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+            transition: all 0.2s ease;
         }
 
         .login-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
         }
 
         #loginBtn {
             padding: 14px 32px !important;
-            font-size: 16px;
+            font-size: 15px;
             max-width: 400px;
             justify-self: center;
-            background: white !important;
-            color: #1f2937 !important;
-            border: 2px solid var(--secondary-color) !important;
-            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15);
+            background: linear-gradient(135deg, #0F766E 0%, #14B8A6 100%) !important;
+            color: #FFFFFF !important;
+            border: none !important;
+            border-radius: 6px !important;
         }
 
         #loginBtn:hover {
-            background: var(--light-bg) !important;
-            box-shadow: 0 4px 16px rgba(79, 70, 229, 0.3);
-            transform: translateY(-2px);
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3) !important;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            display: none;
+            border: 1px solid;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message.success {
+            background: #1e4d47;
+            color: #86EFAC;
+            border-color: #0F766E;
+        }
+
+        .message.error {
+            background: #5A1A1A;
+            color: #FF6B6B;
+            border-color: #7A2A2A;
+        }
+
+        .message.info {
+            background: #1e3a5f;
+            color: #93C5FD;
+            border-color: #0c2340;
+        }
+
+        .login-container {
+            text-align: center;
+            padding: 60px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .login-container h2 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .login-container p {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            line-height: 1.6;
         }
 
         .content {
@@ -147,75 +217,66 @@
             display: block;
         }
 
-        .login-container {
-            text-align: center;
-            padding: 80px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 40px;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        .login-container h2 {
-            font-size: 32px;
-            margin-bottom: 10px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .login-container p {
-            font-size: 16px;
-            color: var(--text-secondary);
-            margin-bottom: 10px;
-            line-height: 1.6;
-        }
-
         .cards-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
+            gap: 16px;
             margin-bottom: 30px;
         }
 
         .card {
-            background: var(--light-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-            transition: all 0.3s ease;
+            background: #333535;
+            border: 1px solid #1e211e;
+            border-radius: 10px;
+            padding: 24px;
+            transition: all 0.2s ease;
             cursor: pointer;
             position: relative;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 140px;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #0F766E, #14B8A6);
         }
 
         .card:hover {
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-            transform: translateY(-4px);
-            border-color: var(--secondary-color);
+            box-shadow: 0 8px 24px rgba(15, 118, 110, 0.2);
+            border-color: #14B8A6;
+            transform: translateY(-2px);
         }
 
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: start;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .card-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
             color: var(--text-primary);
         }
 
         .card-badge {
-            background: var(--secondary-color);
+            background: linear-gradient(135deg, #0F766E, #14B8A6);
             color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 11px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .card-content {
@@ -229,23 +290,21 @@
         .email-link {
             display: block;
             padding: 8px 0;
-            color: var(--secondary-color);
+            color: var(--accent-color);
             text-decoration: none;
             font-size: 13px;
             word-break: break-word;
             transition: all 0.2s ease;
-            border-left: 3px solid transparent;
-            padding-left: 8px;
         }
 
         .email-link:hover {
             color: var(--accent-color);
-            border-left-color: var(--accent-color);
+            text-decoration: underline;
         }
 
         .card-footer {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
         .btn {
@@ -255,40 +314,48 @@
             border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 13px;
-            transition: all 0.3s ease;
+            font-size: 12px;
+            transition: all 0.2s ease;
+            background: #1e211e;
+            color: var(--text-primary);
         }
 
         .btn-view {
-            background: var(--secondary-color);
+            background: linear-gradient(135deg, #0F766E, #14B8A6);
             color: white;
+            border: none;
         }
 
         .btn-view:hover {
-            background: #4338CA;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
         }
 
         .btn-delete {
-            background: var(--danger-color);
-            color: white;
+            background: #5A1A1A;
+            border: 1px solid #7A2A2A;
+            color: #FF6B6B;
         }
 
         .btn-delete:hover {
-            background: #DC2626;
+            background: #7A2A2A;
+            border-color: #9A3A3A;
+            transform: translateY(-1px);
         }
 
         .form-section {
-            background: var(--light-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 30px;
+            background: #2b2d2b;
+            border: 1px solid #1e211e;
+            border-radius: 10px;
+            padding: 24px;
             margin-bottom: 30px;
         }
 
         .form-section h3 {
-            font-size: 20px;
+            font-size: 18px;
             margin-bottom: 20px;
             color: var(--text-primary);
+            font-weight: 600;
         }
 
         .form-group {
@@ -299,26 +366,28 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text-primary);
         }
 
         .form-group input,
         .form-group textarea {
             width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
+            padding: 10px 12px;
+            border: 1px solid #1e211e;
             border-radius: 6px;
             font-size: 14px;
             font-family: inherit;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            background: #181e19;
+            color: var(--text-primary);
         }
 
         .form-group input:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: var(--secondary-color);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+            border-color: #0F766E;
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
         }
 
         .form-group textarea {
@@ -336,25 +405,24 @@
         .btn-submit {
             width: 100%;
             padding: 12px;
-            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--accent-color) 100%);
+            background: linear-gradient(135deg, #0F766E 0%, #14B8A6 100%);
             color: white;
             border: none;
             border-radius: 6px;
             font-weight: 600;
-            font-size: 16px;
+            font-size: 14px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         .btn-submit:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
         }
 
         .btn-submit:disabled {
             opacity: 0.5;
             cursor: not-allowed;
-            transform: none;
         }
 
         .message {
@@ -388,20 +456,6 @@
             border: 1px solid #93C5FD;
         }
 
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
         .empty-state {
             text-align: center;
             padding: 40px 20px;
@@ -412,51 +466,74 @@
             width: 80px;
             height: 80px;
             margin-bottom: 20px;
-            opacity: 0.5;
+            opacity: 0.3;
+            color: #0F766E;
+        }
+
+        .empty-state h3 {
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .loading {
+            display: block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #1e211e;
+            border-radius: 50%;
+            border-top-color: #0F766E;
+            animation: spin 1s linear infinite;
+            margin: 40px auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
+            gap: 12px;
             margin-bottom: 30px;
         }
 
         .stat-card {
-            background: var(--light-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
+            background: linear-gradient(135deg, #0F766E 0%, #14B8A6 100%);
+            border: none;
+            border-radius: 10px;
             padding: 20px;
             text-align: center;
+            color: white;
         }
 
         .stat-number {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 700;
-            color: var(--secondary-color);
+            color: white;
         }
 
         .stat-label {
             font-size: 12px;
-            color: var(--text-secondary);
-            margin-top: 5px;
-        }
-
-        .back-button {
-            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 8px;
         }
 
         .email-list {
-            background: var(--light-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 20px;
+            background: #2b2d2b;
+            border: 1px solid #1e211e;
+            border-radius: 10px;
+            padding: 16px;
         }
 
         .email-item {
             padding: 12px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid #1e211e;
             transition: all 0.2s ease;
+            border-radius: 4px;
+            background: #333535;
+            margin-bottom: 8px;
         }
 
         .email-item:last-child {
@@ -464,8 +541,7 @@
         }
 
         .email-item:hover {
-            background: white;
-            border-radius: 4px;
+            background: #3a3d3a;
         }
 
         .email-subject {
@@ -473,17 +549,29 @@
             color: var(--text-primary);
             margin-bottom: 6px;
             word-break: break-word;
+            font-size: 14px;
+        }
+
+        .email-subject-link {
+            text-decoration: none;
+            display: block;
+        }
+
+        .email-subject-link:hover .email-subject {
+            color: #14B8A6;
+        }
+
+        .email-subject-link:hover .email-link-text {
+            opacity: 1;
         }
 
         .email-link-text {
             font-size: 12px;
-            color: var(--secondary-color);
+            color: #0F766E;
             text-decoration: none;
-            word-break: break-all;
-        }
-
-        .email-link-text:hover {
-            text-decoration: underline;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.2s ease;
         }
 
         @media (max-width: 768px) {
@@ -491,13 +579,18 @@
                 font-size: 24px;
             }
 
+            .header p {
+                font-size: 13px;
+            }
+
             .cards-container {
                 grid-template-columns: 1fr;
+                gap: 12px;
             }
 
             .nav-bar {
                 flex-direction: column;
-                gap: 10px;
+                gap: 8px;
             }
 
             .nav-bar-left {
@@ -506,11 +599,15 @@
             }
 
             .form-section {
-                padding: 20px;
+                padding: 16px;
             }
 
             .content {
-                padding: 20px 10px;
+                padding: 24px 16px;
+            }
+
+            .login-container {
+                padding: 40px 16px;
             }
         }
     </style>
@@ -519,7 +616,7 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>📧 Gmail Reader</h1>
+            <h1>Gmail Reader</h1>
             <p>Organize and manage your Gmail labels effortlessly</p>
         </div>
 
@@ -528,9 +625,6 @@
             <div class="nav-bar-left">
                 <button class="nav-button" id="viewLabelsBtn" onclick="showLabels()" style="display:none;">
                     All Labels
-                </button>
-                <button class="nav-button secondary" id="createLabelBtn" onclick="showCreateForm()" style="display:none;">
-                    + Create Label
                 </button>
             </div>
             <div id="userInfo" style="display: flex; align-items: center; gap: 15px;"></div>
@@ -554,12 +648,6 @@
 
             <!-- Labels View -->
             <div id="labelsView" style="display: none;">
-                <div class="stats">
-                    <div class="stat-card">
-                        <div class="stat-number" id="labelCount">0</div>
-                        <div class="stat-label">Labels Created</div>
-                    </div>
-                </div>
                 <div id="labelsContainer" class="cards-container"></div>
                 <div id="emptyLabels" class="empty-state">
                     <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
@@ -591,7 +679,12 @@
 
             <!-- Email View -->
             <div id="emailView" style="display: none;">
-                <button class="nav-button" onclick="showLabels()" style="margin-bottom: 20px;">← Back to Labels</button>
+                <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 20px;">
+                    <button class="nav-button" onclick="showLabels()">← Back to Labels</button>
+                    <button class="nav-button" id="deleteCurrentLabelBtn" style="background: #5A1A1A; border-color: #7A2A2A; color: #FF6B6B;">
+                        Delete Label
+                    </button>
+                </div>
                 <h2 id="emailViewTitle" style="margin-bottom: 20px;"></h2>
                 <div id="emailContainer"></div>
                 <div id="emptyEmails" class="empty-state" style="display: none;">
@@ -622,7 +715,6 @@
             document.getElementById('dashboardContent').classList.remove('active');
             document.getElementById('loginBtn').style.display = 'flex';
             document.getElementById('viewLabelsBtn').style.display = 'none';
-            document.getElementById('createLabelBtn').style.display = 'none';
             document.getElementById('userInfo').innerHTML = '';
         }
 
@@ -656,7 +748,8 @@
             document.getElementById('dashboardContent').classList.add('active');
             document.getElementById('loginBtn').style.display = 'none';
             document.getElementById('viewLabelsBtn').style.display = 'block';
-            document.getElementById('createLabelBtn').style.display = 'block';
+            document.querySelector('.header').style.display = 'block';
+            document.querySelector('.nav-bar').style.display = 'flex';
             
             // Fetch and display user info
             fetchUserProfile();
@@ -678,7 +771,7 @@
                                 <div style="font-size: 14px; font-weight: 600; color: var(--text-primary);">${escapeHtml(user.name)}</div>
                                 <div style="font-size: 12px; color: var(--text-secondary);">${escapeHtml(user.email)}</div>
                             </div>
-                            <button class="nav-button" id="logoutBtn" onclick="logout()" style="background: var(--danger-color); white-space: nowrap;">Logout</button>
+                            <button class="nav-button" id="logoutBtn" onclick="logout()" style="white-space: nowrap;">Logout</button>
                         </div>
                     `;
                 }
@@ -713,6 +806,8 @@
             document.getElementById('labelsView').style.display = 'block';
             document.getElementById('createLabelView').style.display = 'none';
             document.getElementById('emailView').style.display = 'none';
+            document.querySelector('.header').style.display = 'block';
+            document.querySelector('.nav-bar').style.display = 'flex';
             loadLabels();
         }
 
@@ -721,6 +816,8 @@
             document.getElementById('labelsView').style.display = 'none';
             document.getElementById('createLabelView').style.display = 'block';
             document.getElementById('emailView').style.display = 'none';
+            document.querySelector('.header').style.display = 'block';
+            document.querySelector('.nav-bar').style.display = 'flex';
             document.getElementById('labelForm').reset();
         }
 
@@ -729,7 +826,10 @@
             document.getElementById('labelsView').style.display = 'none';
             document.getElementById('createLabelView').style.display = 'none';
             document.getElementById('emailView').style.display = 'block';
+            document.querySelector('.header').style.display = 'none';
+            document.querySelector('.nav-bar').style.display = 'none';
             document.getElementById('emailViewTitle').textContent = `Emails - ${labelName}`;
+            document.getElementById('deleteCurrentLabelBtn').onclick = () => deleteLabel(labelName);
             loadEmails(labelName);
         }
 
@@ -750,7 +850,7 @@
                 }
 
                 showMessage(`Label "${labelName}" deleted successfully!`, 'success');
-                loadLabels();
+                setTimeout(() => showLabels(), 1500);
             } catch (error) {
                 showMessage('Error deleting label: ' + error.message, 'error');
             }
@@ -776,36 +876,42 @@
         async function loadLabels() {
             const container = document.getElementById('labelsContainer');
             const emptyState = document.getElementById('emptyLabels');
-            const labelCount = document.getElementById('labelCount');
             
-            container.innerHTML = '<div class="loading" style="margin: 40px auto;"></div>';
+            container.innerHTML = '<div class="loading"></div>';
             emptyState.style.display = 'none';
 
             try {
                 const labels = await fetchLabels();
                 
                 if (labels && labels.length > 0) {
-                    labelCount.textContent = labels.length;
                     container.innerHTML = labels.map((label, index) => `
-                        <div class="card">
+                        <div class="card" onclick="showEmails('${escapeHtml(label)}')">
                             <div class="card-header">
                                 <div class="card-title">${escapeHtml(label)}</div>
                                 <span class="card-badge">Label</span>
                             </div>
-                            <div class="card-footer">
-                                <button class="btn btn-view" onclick="showEmails('${escapeHtml(label)}')">
-                                    View Emails
-                                </button>
-                                <button class="btn btn-delete" onclick="deleteLabel('${escapeHtml(label)}')">
-                                    Delete
-                                </button>
+                            <div style="color: var(--text-secondary); font-size: 13px; margin-bottom: 16px;">Click to view emails</div>
+                        </div>
+                    `).join('') + `
+                        <div class="card" onclick="showCreateForm()" style="display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 36px; margin-bottom: 8px;">+</div>
+                                <div class="card-title">Create Label</div>
+                                <div style="color: var(--text-secondary); font-size: 13px; margin-top: 8px;">Add new label</div>
                             </div>
                         </div>
-                    `).join('');
+                    `;
                 } else {
-                    labelCount.textContent = '0';
-                    container.innerHTML = '';
-                    emptyState.style.display = 'block';
+                    container.innerHTML = `
+                        <div class="card" onclick="showCreateForm()" style="display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 36px; margin-bottom: 8px;">+</div>
+                                <div class="card-title">Create Label</div>
+                                <div style="color: var(--text-secondary); font-size: 13px; margin-top: 8px;">Add new label</div>
+                            </div>
+                        </div>
+                    `;
+                    emptyState.style.display = 'none';
                 }
             } catch (error) {
                 showMessage('Error loading labels: ' + error.message, 'error');
@@ -819,7 +925,7 @@
             const container = document.getElementById('emailContainer');
             const emptyState = document.getElementById('emptyEmails');
             
-            container.innerHTML = '<div class="loading" style="margin: 40px auto;"></div>';
+            container.innerHTML = '<div class="loading"></div>';
             emptyState.style.display = 'none';
 
             try {
@@ -836,8 +942,10 @@
                         <div class="email-list">
                             ${emailArray.map(([subject, link]) => `
                                 <div class="email-item">
-                                    <div class="email-subject">${escapeHtml(subject)}</div>
-                                    <a href="${link}" target="_blank" class="email-link-text">Open in Gmail →</a>
+                                    <a href="${link}" target="_blank" class="email-subject-link">
+                                        <div class="email-subject">${escapeHtml(subject)}</div>
+                                        <div class="email-link-text">Open in Gmail →</div>
+                                    </a>
                                 </div>
                             `).join('')}
                         </div>
