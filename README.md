@@ -26,24 +26,24 @@ Gmail Reader/
 ├── public/
 │   └── index.html              # Frontend UI - VIBE CODED ;p
 │
-├── src/
-│   ├── app.js                  # Main Express app
-│   ├── config/
-│   │   ├── env.js              # Environment variables validation
-│   │   ├── database.js         # MongoDB connection setup
-│   │   └── auth.js             # Passport.js configuration for OAuth 2.0
-│   ├── controllers/
-│   │   └── labelController.js  # Label create, list, retrieve, delete operations
-│   ├── middleware/
-│   │   └── authMiddleware.js   # Gmail client attachment middleware
-│   ├── routes/
-│   │   ├── authRoutes.js       # Authentication endpoints (login, callback, profile, logout)
-│   │   └── labelRoutes.js      # Label management & email retrieval endpoints
-│   ├── services/
-│   │   └── labels.js           # Helper functions to provide separate file for Gmail API interaction
-│   └── model/
-│       ├── Label.js            # Label database schema
-│       └── User.js             # User database schema
+├── backend/
+│   └── src/
+│       ├── app.js                  # Main Express app
+│       ├── config/
+│       │   ├── env.js              # Environment variables validation
+│       │   ├── database.js         # MongoDB connection setup
+│       │   └── auth.js             # Passport.js configuration for OAuth 2.0
+│       ├── controllers/
+│       │   └── labelController.js  # Label create, list, retrieve, delete operations
+│       ├── middleware/
+│       │   └── authMiddleware.js   # Gmail client attachment middleware
+│       ├── routes/
+│       │   ├── authRoutes.js       # Authentication endpoints (login, callback, profile, logout)
+│       │   └── labelRoutes.js      # Label management & email retrieval endpoints
+│       ├── services/
+│       │   └── labels.js           # Helper functions to provide separate file for Gmail API interaction
+│       └── model/
+│           └── User.js             # User database schema
 │
 ├── package.json                # Project dependencies
 └── README.md                   # Documentation
