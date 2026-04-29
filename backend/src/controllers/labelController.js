@@ -1,5 +1,4 @@
-import { Label } from "../model/Label.js";
-import { createGmailLabel, retrieveMails, deleteGmailLabel } from "../services/labels.js";
+import { createGmailLabel, getAllLabelsFromGmail, retrieveMails, deleteGmailLabel } from "../services/labels.js";
 
 export async function createNewLabel(req,res) {
 
@@ -17,9 +16,11 @@ export async function createNewLabel(req,res) {
 
     }
 
-    let label = await Label.findOne({labelName : labelName})
+    // Check if label already exists in Gmail
+    const gmailLabels = await getAllLabelsFromGmail(req.gmail);
+    const existingLabel = gmailLabels.find(l => l.labelName === labelName);
 
-    if (label != null) {
+    if (existingLabel) {
 
       console.log(`Label already exists`)
       return res.status(400).json({
@@ -30,12 +31,6 @@ export async function createNewLabel(req,res) {
     }
 
     const {labelId, filterId} = await createGmailLabel(req.gmail, labelName, fromList);
-    const createdLabel = new Label({
-      labelName,
-      labelId,
-      filterId
-    });
-    await createdLabel.save();
 
     console.log('Successfully created label');
     res.status(201).json({
@@ -58,10 +53,10 @@ export async function getLabels(req,res) {
 
   try {
 
-    const labels = await Label.find({});
+    const labels = await getAllLabelsFromGmail(req.gmail);
     const labelNames = labels.map(label=>label.labelName);
 
-    console.log("Retrieved all labels created by user")
+    console.log("Retrieved all labels from Gmail")
     res.status(200).json({
       message : "OK",
       data: labelNames
@@ -95,14 +90,15 @@ export async function getEmailsByLabel(req,res){
       
     }
 
-    let label = await Label.findOne({labelName : labelName});
+    const labels = await getAllLabelsFromGmail(req.gmail);
+    const label = labels.find(l => l.labelName === labelName);
 
     if(!label){
 
-      console.log("Couldn't find specified labelName in database");
+      console.log("Couldn't find specified labelName in Gmail");
       return res.status(404).json({
         message : "Not Found",
-        error : "Couldn't find specified labelName in database"
+        error : "Couldn't find specified labelName in Gmail"
       })
 
     }
@@ -144,14 +140,15 @@ export async function deleteLabel(req,res) {
 
     };
 
-    const label = await Label.findOne({labelName : labelName});
+    const labels = await getAllLabelsFromGmail(req.gmail);
+    const label = labels.find(l => l.labelName === labelName);
 
     if (!label){
     
-      console.log('Label not found');
+      console.log('Label not found in Gmail');
       return res.status(404).json({
         message : "Not Found",
-        error : 'Label not found'
+        error : 'Label not found in Gmail'
       });
     
     }
@@ -164,7 +161,6 @@ export async function deleteLabel(req,res) {
     }
 
     await deleteGmailLabel(req.gmail, labelId, filterId);
-    await Label.deleteOne({labelName : labelName});
 
     console.log('Successfully deleted label');
     res.status(201).json({

@@ -60,6 +60,43 @@ export async function createGmailLabel(gmail, labelName, fromList){
 
 }
 
+// Retrieves all labels from Gmail and matches them with their associated filters
+export async function getAllLabelsFromGmail(gmail){
+
+  // Get all Gmail labels
+  const labelsResponse = await gmail.users.labels.list({
+    userId: 'me'
+  });
+  const labels = (labelsResponse.data.labels || []).filter(label => label.type === 'user');
+
+  // Get all Gmail filters
+  const filtersResponse = await gmail.users.settings.filters.list({
+    userId: 'me'
+  });
+  const filters = filtersResponse.data.filter || [];
+
+  // Create a map of labelId to filterId for matching
+  const labelIdToFilterId = {};
+  
+  for (let filter of filters) {
+    if (filter.action && filter.action.addLabelIds) {
+      for (let labelId of filter.action.addLabelIds) {
+        labelIdToFilterId[labelId] = filter.id;
+      }
+    }
+  }
+
+  // Build and return array of label objects with labelName, labelId, and filterId
+  const labelsList = labels.map(label => ({
+    labelName: label.name,
+    labelId: label.id,
+    filterId: labelIdToFilterId[label.id] || null
+  }));
+
+  return labelsList;
+
+}
+
 // Retrieves mails using label id's passed as parameters
 export async function retrieveMails(gmail, labelId){
 
