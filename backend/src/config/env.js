@@ -4,8 +4,8 @@ dotenv.config();
 export const validateEnv = () => {
 
   const requiredEnvVars = [
-    'PORT',
     'NODE_ENV',
+    'PORT',
     'SESSION_SECRET',
     'MONGODB_CONNECTION_URI',
     'GOOGLE_CLIENT_ID',
@@ -18,6 +18,8 @@ export const validateEnv = () => {
       console.warn(`Warning: Missing environment variable ${envVar}`);
     }
   }
+
+  console.log("All variables validated successfully");
   
 };
 

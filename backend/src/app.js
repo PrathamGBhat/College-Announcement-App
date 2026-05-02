@@ -1,10 +1,10 @@
 import express from 'express';
 import session from 'express-session';
-import { passport } from './config/auth.js';
 import { validateEnv, env } from './config/env.js';
 import { connectDB } from './config/database.js';
-import { authRouter } from './routes/authRoutes.js';
+import { passport } from './config/auth.js';
 import { attachGmailClient } from './middleware/authMiddleware.js';
+import { authRouter } from './routes/authRoutes.js';
 import { labelRouter } from './routes/labelRoutes.js';
 
 // Validate environment variables
