@@ -1,5 +1,6 @@
 import express from 'express';
 import { passport } from '../config/auth.js';
+import { env } from '../config/env.js';
 
 export const authRouter = express.Router();
 
@@ -8,7 +9,7 @@ authRouter.get('/auth/google/login', passport.authenticate('google', { scope: ['
 
 // Endpoint used by oauth to manage tokens
 authRouter.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/auth/google/login' }), (req, res) => {
-    res.redirect('/');
+  res.redirect(env.FRONTEND_URL || '/');
 });
 
 // Endpoint to get current user profile

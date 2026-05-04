@@ -696,12 +696,14 @@
 
     <script>
         // API base URL can be injected on the host page (window.API_BASE_URL).
-        const API_BASE_URL = window.location.hostname === "localhost" ? "http://localhost:5000" : "https://neatbox.onrender.com";
+        const API_BASE_URL = window.location.hostname === "localhost" ? "http://localhost:3000" : "https://neatbox.onrender.com";
+        const fetchWithCredentials = (url, options = {}) =>
+            fetch(url, { credentials: 'include', ...options });
 
         // Check if user is logged in
         async function checkLoginStatus() {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/labels/list`);
+                const response = await fetchWithCredentials(`${API_BASE_URL}/api/labels/list`);
                 if (response.ok) {
                     showDashboard();
                 } else {
@@ -763,7 +765,7 @@
         // Fetch user profile
         async function fetchUserProfile() {
             try {
-                const response = await fetch(`${API_BASE_URL}/auth/profile`);
+                const response = await fetchWithCredentials(`${API_BASE_URL}/auth/profile`);
                 if (response.ok) {
                     const result = await response.json();
                     const user = result.data;
@@ -790,7 +792,7 @@
             }
 
             try {
-                const response = await fetch(`${API_BASE_URL}/auth/google/logout`);
+                const response = await fetchWithCredentials(`${API_BASE_URL}/auth/google/logout`);
 
                 if (response.ok) {
                     // Redirect to home after logout
@@ -843,7 +845,7 @@
             }
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/labels/delete/${encodeURIComponent(labelName)}`, {
+                const response = await fetchWithCredentials(`${API_BASE_URL}/api/labels/delete/${encodeURIComponent(labelName)}`, {
                     method: 'DELETE'
                 });
 
@@ -862,7 +864,7 @@
         // Fetch all labels from backend
         async function fetchLabels() {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/labels/list`);
+                const response = await fetchWithCredentials(`${API_BASE_URL}/api/labels/list`);
                 if (!response.ok) {
                     if (response.status === 404) return null;
                     throw new Error('Failed to fetch labels');
@@ -932,7 +934,7 @@
             emptyState.style.display = 'none';
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/labels/${encodeURIComponent(labelName)}`);
+                const response = await fetchWithCredentials(`${API_BASE_URL}/api/labels/${encodeURIComponent(labelName)}`);
                 if (!response.ok) throw new Error('Failed to fetch emails');
                 
                 const data = await response.json();
@@ -1001,7 +1003,7 @@
             submitBtn.innerHTML = '<span class="loading"></span>';
             
             try {
-                const response = await fetch(`${API_BASE_URL}/api/labels/create`, {
+                const response = await fetchWithCredentials(`${API_BASE_URL}/api/labels/create`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
