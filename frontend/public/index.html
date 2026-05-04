@@ -696,7 +696,9 @@
 
     <script>
         // API base URL can be injected on the host page (window.API_BASE_URL).
-        const API_BASE_URL = window.location.hostname === "localhost" ? "http://localhost:3000" : "https://neatbox.onrender.com/";
+        const rawApiBaseUrl = window.API_BASE_URL
+            || (window.location.hostname === "localhost" ? "http://localhost:3000" : "https://neatbox.onrender.com");
+        const API_BASE_URL = rawApiBaseUrl.replace(/\/+$/, '');
         const fetchWithCredentials = (url, options = {}) =>
             fetch(url, { credentials: 'include', ...options });
 
