@@ -18,7 +18,7 @@ app.use(express.json());
 app.set('trust proxy', 1);
 const allowedOrigins = process.env.NODE_ENV === 'production'
   ? [env.FRONTEND_URL].filter(Boolean)
-  : [env.FRONTEND_URL, 'http://localhost:5500', 'http://localhost:3000'].filter(Boolean);
+  : [env.FRONTEND_URL, 'http://localhost:5500'].filter(Boolean);
 app.use(cors({
   origin: allowedOrigins,
   credentials: true
@@ -61,10 +61,3 @@ const startServer = async () => {
 }
 
 startServer();
-
-// Endpoint to serve static frontend page
-app.get('/', (req, res) => {
-
-  res.sendFile('index.html', { root: 'public' });
-
-});
