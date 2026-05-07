@@ -696,16 +696,29 @@
 
     <script>
         // API base URL can be injected on the host page (window.API_BASE_URL).
-        const rawApiBaseUrl = window.API_BASE_URL
-            || (window.location.hostname === "localhost" ? "http://localhost:3000" : "https://neatbox.onrender.com");
-        const API_BASE_URL = rawApiBaseUrl.replace(/\/+$/, '');
-        const fetchWithCredentials = (url, options = {}) =>
-            fetch(url, { credentials: 'include', ...options });
+        const API_BASE_URL =
+            window.location.hostname === "localhost"
+            ? "http://localhost:3000"
+            : "https://neatbox.onrender.com";
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkLoginStatus();
+
+            const loginBtn = document.getElementById('loginBtn');
+
+            if (loginBtn) {
+                loginBtn.addEventListener('click', function() {
+                    // Redirect to Passport OAuth route
+                    window.location.href = `${API_BASE_URL}/auth/google/login`;
+                });
+            }
+        });
 
         // Check if user is logged in
         async function checkLoginStatus() {
             try {
-                const response = await fetchWithCredentials(`${API_BASE_URL}/api/labels/list`);
+                const response = await fetch(`${API_BASE_URL}/auth/profile`, { credentials: 'include' });
                 if (response.ok) {
                     showDashboard();
                 } else {
@@ -725,49 +738,24 @@
             document.getElementById('userInfo').innerHTML = '';
         }
 
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            checkLoginStatus();
-            
-            const loginBtn = document.getElementById('loginBtn');
-            
-            if (loginBtn) {
-                loginBtn.addEventListener('click', function() {
-                    // Redirect to Passport OAuth route
-                    window.location.href = `${API_BASE_URL}/auth/google/login`;
-                });
-            }
-        });
-
-        // Message display utility
-        function showMessage(text, type = 'info') {
-            const messageEl = document.getElementById('message');
-            messageEl.textContent = text;
-            messageEl.className = `message show ${type}`;
-            setTimeout(() => {
-                messageEl.classList.remove('show');
-            }, 5000);
-        }
-
         // Show dashboard
         function showDashboard() {
+            fetchUserProfile();
+
             document.getElementById('loginContent').classList.remove('active');
             document.getElementById('dashboardContent').classList.add('active');
             document.getElementById('loginBtn').style.display = 'none';
             document.getElementById('viewLabelsBtn').style.display = 'block';
             document.querySelector('.header').style.display = 'block';
             document.querySelector('.nav-bar').style.display = 'flex';
-            
-            // Fetch and display user info
-            fetchUserProfile();
-            
+
             showLabels();
         }
 
         // Fetch user profile
         async function fetchUserProfile() {
             try {
-                const response = await fetchWithCredentials(`${API_BASE_URL}/auth/profile`);
+                const response = await fetch(`${API_BASE_URL}/auth/profile`, { credentials: 'include' });
                 if (response.ok) {
                     const result = await response.json();
                     const user = result.data;
@@ -787,27 +775,6 @@
             }
         }
 
-        // Logout function
-        async function logout() {
-            if (!confirm('Are you sure you want to logout?')) {
-                return;
-            }
-
-            try {
-                const response = await fetchWithCredentials(`${API_BASE_URL}/auth/google/logout`);
-
-                if (response.ok) {
-                    // Redirect to home after logout
-                    window.location.href = '/';
-                } else {
-                    showMessage('Logout failed', 'error');
-                }
-            } catch (error) {
-                console.error('Logout error:', error);
-                showMessage('Logout failed', 'error');
-            }
-        }
-
         // Show labels view
         function showLabels() {
             document.getElementById('labelsView').style.display = 'block';
@@ -818,78 +785,17 @@
             loadLabels();
         }
 
-        // Show create form
-        function showCreateForm() {
-            document.getElementById('labelsView').style.display = 'none';
-            document.getElementById('createLabelView').style.display = 'block';
-            document.getElementById('emailView').style.display = 'none';
-            document.querySelector('.header').style.display = 'block';
-            document.querySelector('.nav-bar').style.display = 'flex';
-            document.getElementById('labelForm').reset();
-        }
-
-        // Show email view
-        function showEmails(labelName) {
-            document.getElementById('labelsView').style.display = 'none';
-            document.getElementById('createLabelView').style.display = 'none';
-            document.getElementById('emailView').style.display = 'block';
-            document.querySelector('.header').style.display = 'none';
-            document.querySelector('.nav-bar').style.display = 'none';
-            document.getElementById('emailViewTitle').textContent = `Emails - ${labelName}`;
-            document.getElementById('deleteCurrentLabelBtn').onclick = () => deleteLabel(labelName);
-            loadEmails(labelName);
-        }
-
-        // Delete a label
-        async function deleteLabel(labelName) {
-            if (!confirm(`Are you sure you want to delete the label "${labelName}"? This cannot be undone.`)) {
-                return;
-            }
-
-            try {
-                const response = await fetchWithCredentials(`${API_BASE_URL}/api/labels/delete/${encodeURIComponent(labelName)}`, {
-                    method: 'DELETE'
-                });
-
-                if (!response.ok) {
-                    const data = await response.json();
-                    throw new Error(data.error || 'Failed to delete label');
-                }
-
-                showMessage(`Label "${labelName}" deleted successfully!`, 'success');
-                setTimeout(() => showLabels(), 1500);
-            } catch (error) {
-                showMessage('Error deleting label: ' + error.message, 'error');
-            }
-        }
-
-        // Fetch all labels from backend
-        async function fetchLabels() {
-            try {
-                const response = await fetchWithCredentials(`${API_BASE_URL}/api/labels/list`);
-                if (!response.ok) {
-                    if (response.status === 404) return null;
-                    throw new Error('Failed to fetch labels');
-                }
-                const data = await response.json();
-                return data.data || [];
-            } catch (error) {
-                console.error('Error fetching labels:', error);
-                return [];
-            }
-        }
-
         // Load and display labels
         async function loadLabels() {
             const container = document.getElementById('labelsContainer');
             const emptyState = document.getElementById('emptyLabels');
-            
+
             container.innerHTML = '<div class="loading"></div>';
             emptyState.style.display = 'none';
 
             try {
                 const labels = await fetchLabels();
-                
+
                 if (labels && labels.length > 0) {
                     container.innerHTML = labels.map((label, index) => `
                         <div class="card" onclick="showEmails('${escapeHtml(label)}')">
@@ -927,23 +833,128 @@
             }
         }
 
+        // Fetch all labels from backend
+        async function fetchLabels() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/labels/list`, { credentials: 'include' });
+                if (!response.ok) {
+                    if (response.status === 404) return null;
+                    throw new Error('Failed to fetch labels');
+                }
+                const data = await response.json();
+                return data.data || [];
+            } catch (error) {
+                console.error('Error fetching labels:', error);
+                return [];
+            }
+        }
+
+        // Show create form
+        function showCreateForm() {
+            document.getElementById('labelsView').style.display = 'none';
+            document.getElementById('createLabelView').style.display = 'block';
+            document.getElementById('emailView').style.display = 'none';
+            document.querySelector('.header').style.display = 'block';
+            document.querySelector('.nav-bar').style.display = 'flex';
+            document.getElementById('labelForm').reset();
+        }
+
+        // Create a new label
+        async function createLabel(event) {
+            event.preventDefault();
+
+            const labelName = document.getElementById('labelName').value.trim();
+            const fromListText = document.getElementById('fromList').value.trim();
+
+            if (!labelName || !fromListText) {
+                showMessage('Please fill in all fields', 'error');
+                return;
+            }
+
+            const fromList = fromListText
+                .split('\n')
+                .map(email => email.trim())
+                .filter(email => email.length > 0);
+
+            if (fromList.length === 0) {
+                showMessage('Please enter at least one email address', 'error');
+                return;
+            }
+
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            for (const email of fromList) {
+                if (!emailRegex.test(email)) {
+                    showMessage(`Invalid email format: ${email}`, 'error');
+                    return;
+                }
+            }
+
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading"></span>';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/labels/create`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        labelName,
+                        fromList
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to create label');
+                }
+
+                showMessage(`Label "${labelName}" created successfully!`, 'success');
+                document.getElementById('labelForm').reset();
+                setTimeout(() => showLabels(), 1500);
+
+            } catch (error) {
+                showMessage('Error: ' + error.message, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        }
+
+        // Show email view
+        function showEmails(labelName) {
+            document.getElementById('labelsView').style.display = 'none';
+            document.getElementById('createLabelView').style.display = 'none';
+            document.getElementById('emailView').style.display = 'block';
+            document.querySelector('.header').style.display = 'none';
+            document.querySelector('.nav-bar').style.display = 'none';
+            document.getElementById('emailViewTitle').textContent = `Emails - ${labelName}`;
+            document.getElementById('deleteCurrentLabelBtn').onclick = () => deleteLabel(labelName);
+            loadEmails(labelName);
+        }
+
         // Load and display emails for a label
         async function loadEmails(labelName) {
             const container = document.getElementById('emailContainer');
             const emptyState = document.getElementById('emptyEmails');
-            
+
             container.innerHTML = '<div class="loading"></div>';
             emptyState.style.display = 'none';
 
             try {
-                const response = await fetchWithCredentials(`${API_BASE_URL}/api/labels/${encodeURIComponent(labelName)}`);
+                const response = await fetch(`${API_BASE_URL}/api/labels/${encodeURIComponent(labelName)}`, { credentials: 'include' });
                 if (!response.ok) throw new Error('Failed to fetch emails');
-                
+
                 const data = await response.json();
                 const emails = data.data || {};
-                
+
                 const emailArray = Object.entries(emails);
-                
+
                 if (emailArray.length > 0) {
                     container.innerHTML = `
                         <div class="email-list">
@@ -968,70 +979,59 @@
             }
         }
 
-        // Create a new label
-        async function createLabel(event) {
-            event.preventDefault();
-            
-            const labelName = document.getElementById('labelName').value.trim();
-            const fromListText = document.getElementById('fromList').value.trim();
-            
-            if (!labelName || !fromListText) {
-                showMessage('Please fill in all fields', 'error');
+        // Delete a label
+        async function deleteLabel(labelName) {
+            if (!confirm(`Are you sure you want to delete the label "${labelName}"? This cannot be undone.`)) {
                 return;
             }
-            
-            const fromList = fromListText
-                .split('\n')
-                .map(email => email.trim())
-                .filter(email => email.length > 0);
-            
-            if (fromList.length === 0) {
-                showMessage('Please enter at least one email address', 'error');
-                return;
-            }
-            
-            // Validate email format
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            for (const email of fromList) {
-                if (!emailRegex.test(email)) {
-                    showMessage(`Invalid email format: ${email}`, 'error');
-                    return;
-                }
-            }
-            
-            const submitBtn = event.target.querySelector('button[type="submit"]');
-            const originalText = submitBtn.textContent;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="loading"></span>';
-            
+
             try {
-                const response = await fetchWithCredentials(`${API_BASE_URL}/api/labels/create`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        labelName,
-                        fromList
-                    })
+                const response = await fetch(`${API_BASE_URL}/api/labels/delete/${encodeURIComponent(labelName)}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
                 });
-                
-                const data = await response.json();
-                
+
                 if (!response.ok) {
-                    throw new Error(data.error || 'Failed to create label');
+                    const data = await response.json();
+                    throw new Error(data.error || 'Failed to delete label');
                 }
-                
-                showMessage(`Label "${labelName}" created successfully!`, 'success');
-                document.getElementById('labelForm').reset();
+
+                showMessage(`Label "${labelName}" deleted successfully!`, 'success');
                 setTimeout(() => showLabels(), 1500);
-                
             } catch (error) {
-                showMessage('Error: ' + error.message, 'error');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
+                showMessage('Error deleting label: ' + error.message, 'error');
             }
+        }
+
+        // Logout function
+        async function logout() {
+            if (!confirm('Are you sure you want to logout?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/google/logout`, { credentials: 'include' });
+
+                if (response.ok) {
+                    // Redirect to home after logout
+                    window.location.href = '/';
+                } else {
+                    showMessage('Logout failed', 'error');
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                showMessage('Logout failed', 'error');
+            }
+        }
+
+        // Message display utility
+        function showMessage(text, type = 'info') {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `message show ${type}`;
+            setTimeout(() => {
+                messageEl.classList.remove('show');
+            }, 5000);
         }
 
         // Utility: Escape HTML to prevent XSS

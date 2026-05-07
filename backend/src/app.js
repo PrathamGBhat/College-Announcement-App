@@ -8,39 +8,51 @@ import { attachGmailClient } from './middleware/authMiddleware.js';
 import { authRouter } from './routes/authRoutes.js';
 import { labelRouter } from './routes/labelRoutes.js';
 
+// -----
+// SERVER SETUP
+// -----
+
 // Validate environment variables
 validateEnv();
 
-// Setting up server
+// Set up express app
 const app = express();
 app.use(express.json());
-// app.use(express.static('./frontend/public'));
-app.set('trust proxy', 1);
-const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? [env.FRONTEND_URL].filter(Boolean)
-  : [env.FRONTEND_URL, 'http://localhost:5500'].filter(Boolean);
-app.use(cors({
-  origin: allowedOrigins,
+
+// Set up CORS policy
+const corsOptions = {
+  origin: env.FRONTEND_URL,
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
-}));
+}
+app.use(cors(corsOptions));
+
+// Set up session management
 app.use(session({
   secret: env.SESSION_SECRET,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure: env.NODE_ENV === 'production',
     httpOnly : true,
-    sameSite : process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    sameSite : 'lax',
     maxAge: 24 * 60 * 60 * 1000,  // 24 hours
   },
   resave: false,
   saveUninitialized: false,
 }));
+
+// Set up passport for google oauth sign in
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Set up routers and middleware
 app.use(authRouter);
 app.use(attachGmailClient);
 app.use(labelRouter);
 
-// Function to initialize web app and start server
+// -----
+// INITIALIZE SERVER
+// -----
+
 const startServer = async () => {
   try {
     
@@ -54,9 +66,7 @@ const startServer = async () => {
     });
     
   } catch (err) {
-
     console.log("Cannot start server: "+err.message)
-  
   }
 }
 
