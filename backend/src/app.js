@@ -1,6 +1,7 @@
 import express from 'express';
 import session from 'express-session';
 import cors from 'cors';
+import cookieParser from 'cookie-parser'; 
 import { validateEnv, env } from './config/env.js';
 import { connectDB } from './config/database.js';
 import { passport } from './config/auth.js';
@@ -18,6 +19,7 @@ validateEnv();
 // Set up express app
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 // Set up CORS policy
 const corsOptions = {
