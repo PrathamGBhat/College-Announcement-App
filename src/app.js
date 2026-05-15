@@ -25,7 +25,7 @@ app.use(session({
   cookie: {
     secure: env.NODE_ENV === 'production',
     httpOnly : true,
-    sameSite : 'lax',
+    sameSite : env.NODE_ENV === 'production' ? 'none' : 'lax',
     maxAge: 24 * 60 * 60 * 1000,  // 24 hours
   },
   resave: false,
