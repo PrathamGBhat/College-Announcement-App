@@ -125,7 +125,7 @@ export async function retrieveMails(gmail, labelId){
       }
     }
 
-    link=`https://mail.google.com/mail/?email=${email}#inbox/${msgIds.id}`;
+    link=`https://mail.google.com/mail/?authuser=${email}#inbox/${msgIds.id}`;
     return [subject, link];
 
   }));
