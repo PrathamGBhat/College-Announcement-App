@@ -695,11 +695,8 @@
     </div>
 
     <script>
-        // API base URL can be injected on the host page (window.API_BASE_URL).
-        const API_BASE_URL =
-            window.location.hostname === "localhost"
-            ? "http://localhost:3000"
-            : "https://neatbox.onrender.com";
+        // API base URL uses the same origin when served from the backend public folder.
+        const API_BASE_URL = window.location.origin;
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
@@ -718,17 +715,13 @@
         // Check if user is logged in
         async function checkLoginStatus() {
             try {
-                showMessage('Checking login status...', 'info');
                 const response = await fetch(`${API_BASE_URL}/auth/profile`, { credentials: 'include' });
                 if (response.ok) {
-                    showMessage('Login status OK. Loading dashboard...', 'success');
                     showDashboard();
                 } else {
-                    showMessage(`Login status check failed (HTTP ${response.status}). Showing login screen.`, 'error');
                     showLoginScreen();
                 }
             } catch (error) {
-                showMessage(`Login status check error: ${error.message}`, 'error');
                 showLoginScreen();
             }
         }

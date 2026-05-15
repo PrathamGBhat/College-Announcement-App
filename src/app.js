@@ -1,7 +1,5 @@
 import express from 'express';
 import session from 'express-session';
-import cors from 'cors';
-import cookieParser from 'cookie-parser'; 
 import { validateEnv, env } from './config/env.js';
 import { connectDB } from './config/database.js';
 import { passport } from './config/auth.js';
@@ -19,15 +17,7 @@ validateEnv();
 // Set up express app
 const app = express();
 app.use(express.json());
-app.use(cookieParser());
-
-// Set up CORS policy
-const corsOptions = {
-  origin: env.FRONTEND_URL,
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
-}
-app.use(cors(corsOptions));
+app.use(express.static('public'));
 
 // Set up session management
 app.use(session({
@@ -35,7 +25,7 @@ app.use(session({
   cookie: {
     secure: env.NODE_ENV === 'production',
     httpOnly : true,
-    sameSite : 'none',
+    sameSite : 'lax',
     maxAge: 24 * 60 * 60 * 1000,  // 24 hours
   },
   resave: false,
