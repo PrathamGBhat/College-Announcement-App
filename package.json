@@ -1,5 +1,5 @@
 {
-  "name": "gmail-reader",
+  "name": "neatbox",
   "version": "1.0.0",
   "description": "A backend web application that reads the subjects of mails received by authenticated user and returns a json containing keys as the subject and links to the mails as values",
   "homepage": "https://github.com/PrathamGBhat/College-Announcement-App#readme",

@@ -20,6 +20,7 @@ app.use(express.json());
 app.use(express.static('public'));
 
 // Set up session management
+app.set('trust proxy', 1);
 app.use(session({
   secret: env.SESSION_SECRET,
   cookie: {
