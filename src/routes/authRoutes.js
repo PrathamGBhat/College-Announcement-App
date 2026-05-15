@@ -9,7 +9,7 @@ authRouter.get('/auth/google/login', passport.authenticate('google', { scope: ['
 
 // Endpoint used by oauth to manage tokens
 authRouter.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/auth/google/login' }), (req, res) => {
-  res.redirect(env.FRONTEND_URL || '/');
+  res.redirect('/');
 });
 
 // Endpoint to get current user profile

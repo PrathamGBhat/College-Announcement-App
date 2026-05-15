@@ -63,3 +63,8 @@ const startServer = async () => {
 }
 
 startServer();
+
+// Endpoint to render index.html as home page
+app.get('/',(req,res)=>{
+  res.sendFile('public/index.html', { root: process.cwd() });
+})
