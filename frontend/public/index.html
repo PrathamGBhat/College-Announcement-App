@@ -718,13 +718,17 @@
         // Check if user is logged in
         async function checkLoginStatus() {
             try {
+                showMessage('Checking login status...', 'info');
                 const response = await fetch(`${API_BASE_URL}/auth/profile`, { credentials: 'include' });
                 if (response.ok) {
+                    showMessage('Login status OK. Loading dashboard...', 'success');
                     showDashboard();
                 } else {
+                    showMessage(`Login status check failed (HTTP ${response.status}). Showing login screen.`, 'error');
                     showLoginScreen();
                 }
             } catch (error) {
+                showMessage(`Login status check error: ${error.message}`, 'error');
                 showLoginScreen();
             }
         }
